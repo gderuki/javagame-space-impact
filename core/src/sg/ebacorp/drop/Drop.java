@@ -18,15 +18,23 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class Drop extends ApplicationAdapter {
+    // Assets
     private Texture dropImage;
     private Texture bucketImage;
     private Sound dropSound;
     private Music rainMusic;
+
+    // Utils
     private SpriteBatch batch;
     private OrthographicCamera camera;
+
+    // Objects
     private Rectangle bucket;
     private Array<Rectangle> raindrops;
     private long lastDropTime;
+    private int playerCounter; // need ui for that
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int MOVE_SPEED = 250;
 
     @Override
     public void create() {
@@ -49,20 +57,22 @@ public class Drop extends ApplicationAdapter {
 
         // create a Rectangle to logically represent the bucket
         bucket = new Rectangle();
-        bucket.x = 800 / 2 - 64 / 2; // center the bucket horizontally
-        bucket.y = 20; // bottom left corner of the bucket is 20 pixels above the bottom screen edge
+        bucket.y = 480 / 2 - 64 / 2; // center the bucket horizontally
+        bucket.x = 20; // bottom left corner of the bucket is 20 pixels above the bottom screen edge
         bucket.width = 64;
         bucket.height = 64;
 
         // create the raindrops array and spawn the first raindrop
-        raindrops = new Array<Rectangle>();
+        raindrops = new Array<>();
         spawnRaindrop();
     }
 
     private void spawnRaindrop() {
         Rectangle raindrop = new Rectangle();
-        raindrop.x = MathUtils.random(0, 800 - 64);
-        raindrop.y = 480;
+//        raindrop.y = MathUtils.random(0, 800 - 64);
+//        raindrop.x = 480;
+        raindrop.y = MathUtils.random(0, 400 - 64);
+        raindrop.x = 800;
         raindrop.width = 64;
         raindrop.height = 64;
         raindrops.add(raindrop);
@@ -96,18 +106,20 @@ public class Drop extends ApplicationAdapter {
         batch.end();
 
         // process user input
-        if (Gdx.input.isTouched()) {
-            Vector3 touchPos = new Vector3();
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(touchPos);
-            bucket.x = touchPos.x - 64 / 2;
+        if (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.UP)) {
+            // TODO: write proper lerp movement
+//            bucket.y += MathUtils.lerp(bucket.y, bucket.y + MOVE_SPEED * Gdx.graphics.getDeltaTime(), 1.0f);
+            bucket.y = bucket.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
         }
-        if (Gdx.input.isKeyPressed(Keys.LEFT)) bucket.x -= 200 * Gdx.graphics.getDeltaTime();
-        if (Gdx.input.isKeyPressed(Keys.RIGHT)) bucket.x += 200 * Gdx.graphics.getDeltaTime();
+        if (Gdx.input.isKeyPressed(Keys.RIGHT) || Gdx.input.isKeyPressed(Keys.DOWN)) {
+            // TODO: write proper lerp movement
+//            bucket.y -= MathUtils.lerp(bucket.y + MOVE_SPEED * Gdx.graphics.getDeltaTime(), bucket.y, 1.0f);
+            bucket.y = bucket.y - (MOVE_SPEED * Gdx.graphics.getDeltaTime());
+        }
 
         // make sure the bucket stays within the screen bounds
-        if (bucket.x < 0) bucket.x = 0;
-        if (bucket.x > 800 - 64) bucket.x = 800 - 64;
+        if (bucket.y < 0 + 16) bucket.y = 0 + 16;
+        if (bucket.y > 400 - 16) bucket.y = 400 - 16;
 
         // check if we need to create a new raindrop
         if (TimeUtils.nanoTime() - lastDropTime > 1000000000) spawnRaindrop();
@@ -117,8 +129,8 @@ public class Drop extends ApplicationAdapter {
         // a sound effect as well.
         for (Iterator<Rectangle> iter = raindrops.iterator(); iter.hasNext(); ) {
             Rectangle raindrop = iter.next();
-            raindrop.y -= 200 * Gdx.graphics.getDeltaTime();
-            if (raindrop.y + 64 < 0) iter.remove();
+            raindrop.x -= 100 * Gdx.graphics.getDeltaTime();
+            if (raindrop.x + 64 < 0) iter.remove();
             if (raindrop.overlaps(bucket)) {
                 dropSound.play();
                 iter.remove();
@@ -134,5 +146,16 @@ public class Drop extends ApplicationAdapter {
         dropSound.dispose();
         rainMusic.dispose();
         batch.dispose();
+    }
+
+    // non-precise lerp
+    private float inacurateLerp(float a, float b, float f)
+    {
+        return a + f * (b - a);
+    }
+
+    private float preciseLerp(float a, float b, float f)
+    {
+        return (float) (a * (1.0 - f) + (b * f));
     }
 }
