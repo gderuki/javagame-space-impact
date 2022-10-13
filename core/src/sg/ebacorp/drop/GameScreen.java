@@ -50,7 +50,7 @@ public class GameScreen implements Screen {
 
         // load the images for the droplet and the bucket, 64x64 pixels each
         enemyImage = new Texture(Gdx.files.internal("droplet.png"));
-        projectileImage = new Texture(Gdx.files.internal("fireball.png"));
+        projectileImage = new Texture(Gdx.files.internal("droplet2.png"));
         playerImage = new Texture(Gdx.files.internal("bucket.png"));
 
         // load the drop sound effect and the rain background "music"
@@ -92,9 +92,9 @@ public class GameScreen implements Screen {
     private void spawnProjectile() {
         Rectangle projectile = new Rectangle();
         projectile.y = bucket.y;
-        projectile.x = bucket.x + 34;
+        projectile.x = bucket.x + 64;
         projectile.width = 64;
-        projectile.height = 34;
+        projectile.height = 64;
         projectiles.add(projectile);
         lastProjectileSpawnTime = TimeUtils.nanoTime();
     }
@@ -176,7 +176,7 @@ public class GameScreen implements Screen {
         // move the raindrops, remove any that are beneath the bottom edge of
         // the screen or that hit the bucket. In the later case we play back
         // a sound effect as well.
-        Iterator<Rectangle> iterProjectiles = projectiles.iterator();
+//        Iterator<Rectangle> iterProjectiles = projectiles.iterator();
 //        while (iterProjectiles.hasNext()) {
 
 //            if (projectile.x + 64 > 800)
@@ -191,6 +191,8 @@ public class GameScreen implements Screen {
 //            }
 //        }
 
+
+
         Iterator<Rectangle> iterEnemies = enemies.iterator();
         while (iterEnemies.hasNext()) {
             Rectangle enemy = iterEnemies.next();
@@ -198,23 +200,24 @@ public class GameScreen implements Screen {
             if (enemy.x + 64 < 0)
                 iterEnemies.remove();
             // TODO: Rewrite, doesn't work properly
-            Iterator<Rectangle> pIterator = projectiles.iterator();
-            while (pIterator.hasNext()) {
-                Rectangle projectile = pIterator.next();
-                projectile.x += 200 * Gdx.graphics.getDeltaTime();
-
-                if (enemy.overlaps(projectile)) {
-                    scoreCount++;
-                    livesCount++;
-                    iterProjectiles.remove();
-                    iterEnemies.remove();
-                }
-            }
 
             if (enemy.overlaps(bucket)) {
                 livesCount--;
                 iterEnemies.remove();
             }
+        }
+
+        for (Rectangle projectile : projectiles) {
+            projectile.x += 200 * Gdx.graphics.getDeltaTime();
+            for (Rectangle enemy : enemies) {
+                if (enemy.overlaps(projectile)) {
+                    scoreCount++;
+//                    livesCount++;
+                    enemies.removeIndex(enemies.indexOf(enemy, false));
+                    projectiles.removeIndex(projectiles.indexOf(projectile, false));
+                }
+            }
+
         }
     }
 
