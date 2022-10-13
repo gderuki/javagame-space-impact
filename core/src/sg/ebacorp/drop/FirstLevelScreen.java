@@ -184,7 +184,7 @@ public class FirstLevelScreen implements Screen {
             ScreenUtils.clear(0.560f, 0, 0, 1);
         } else {
             // background color
-            ScreenUtils.clear(0.477f, 0.770f, 0.308f, 1);
+            ScreenUtils.clear(0.549f, 0.730f, 0.504f, 1);
         }
 
         // tell the camera to update its matrices.
