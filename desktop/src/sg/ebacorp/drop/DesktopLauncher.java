@@ -14,12 +14,13 @@ public class DesktopLauncher {
         // Fullscreen
         config.setMaximized(true);
         DisplayMode displayMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
+
         config.setFullscreenMode(displayMode);
 
         // we can't have simultaneously vsync and fps cap.
         // while fps cap isn't so accurate I'd say fuck it, I must continue with fps cap instead, don't want dem 60fps
         //		config.useVsync(true);
-        config.setTitle("Drop");
-        new Lwjgl3Application(new Drop(), config);
+        config.setTitle("Space Impact");
+        new Lwjgl3Application(new DefaultGame(), config);
     }
 }
