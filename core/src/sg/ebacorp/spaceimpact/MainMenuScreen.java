@@ -1,4 +1,4 @@
-package sg.ebacorp.drop;
+package sg.ebacorp.spaceimpact;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

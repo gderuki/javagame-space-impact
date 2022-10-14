@@ -1,4 +1,4 @@
-package sg.ebacorp.drop;
+package sg.ebacorp.spaceimpact;
 
 public class Blinker {
     private final float BLINK_TIME = 0.1f;

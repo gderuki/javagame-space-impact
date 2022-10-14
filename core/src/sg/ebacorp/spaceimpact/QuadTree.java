@@ -1,4 +1,4 @@
-package sg.ebacorp.drop;
+package sg.ebacorp.spaceimpact;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;

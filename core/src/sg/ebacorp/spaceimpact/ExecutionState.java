@@ -1,4 +1,4 @@
-package sg.ebacorp.drop;
+package sg.ebacorp.spaceimpact;
 
 public enum ExecutionState {
     PAUSED,

@@ -1,4 +1,4 @@
-package sg.ebacorp.drop;
+package sg.ebacorp.spaceimpact;
 
 import java.util.Iterator;
 
@@ -13,8 +13,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
-
-import static sg.ebacorp.drop.ExecutionState.PAUSED;
 
 
 public class FirstLevelScreen implements Screen {
@@ -229,7 +227,7 @@ public class FirstLevelScreen implements Screen {
     private void detectCollision() {
         Iterator<Rectangle> iterEnemies = enemies.iterator();
         // nope, doesn't work... future me, please check it once you got home
-        while (iterEnemies.hasNext() && !executionState.equals(PAUSED)) {
+        while (iterEnemies.hasNext() && !executionState.equals(ExecutionState.PAUSED)) {
             Rectangle enemy = iterEnemies.next();
 
             // apply math
@@ -242,7 +240,7 @@ public class FirstLevelScreen implements Screen {
                 iterEnemies.remove();
 
                 if (livesCount < 1) {
-                    executionState = PAUSED;
+                    executionState = ExecutionState.PAUSED;
                 }
             }
         }
