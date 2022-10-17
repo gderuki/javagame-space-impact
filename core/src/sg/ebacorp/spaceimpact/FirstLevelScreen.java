@@ -23,19 +23,22 @@ public class FirstLevelScreen implements Screen {
     Texture enemyImage;
     Texture projectileImage;
     Texture playerImage;
+    Texture extraLiveImage;
     Sound shootSound;
-//    Music rainMusic;
+    //    Music rainMusic;
     OrthographicCamera camera;
     Rectangle player;
+    Array<Rectangle> extraLives;
     Array<Rectangle> enemies;
     Array<Rectangle> projectiles;
     long lastEnemySpawnTime;
+    long lastExtraLifeSpawnTime;
     long lastProjectileSpawnTime;
     int scoreCount;
     int livesCount = 1;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final int MOVE_SPEED = 160;
+    private final int MOVE_SPEED = 120;
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
@@ -49,6 +52,8 @@ public class FirstLevelScreen implements Screen {
 //    private final Blinker blinker;
 
     private ExecutionState executionState;
+
+    private boolean shouldDrawExtraLife;
 
     public FirstLevelScreen(final DefaultGame gam) {
         this.game = gam;
@@ -66,6 +71,7 @@ public class FirstLevelScreen implements Screen {
         enemyImage = new Texture(Gdx.files.internal("enemy.png"));
         projectileImage = new Texture(Gdx.files.internal("laser.png"));
         playerImage = new Texture(Gdx.files.internal("ship.png"));
+        extraLiveImage = new Texture(Gdx.files.internal("extra_life.png"));
 
         // load the drop sound effect and the rain background "music"
         shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
@@ -73,13 +79,25 @@ public class FirstLevelScreen implements Screen {
 //        rainMusic.setLooping(true);
     }
 
+    private void spawnExtraLive() {
+        Rectangle extraLive = new Rectangle();
+        extraLive.y = MathUtils.random(0, SCREEN_HEIGHT - 64);
+        extraLive.x = SCREEN_WIDTH - 64;
+        extraLive.width = 64;
+        extraLive.height = 64;
+        // we add -> we clean on pickup, we repopulate
+        extraLives.add(extraLive);
+        lastExtraLifeSpawnTime = TimeUtils.nanoTime();
+    }
+
+
     private void spawnEnemy() {
-        Rectangle raindrop = new Rectangle();
-        raindrop.y = MathUtils.random(0, SCREEN_HEIGHT - 64);
-        raindrop.x = SCREEN_WIDTH;
-        raindrop.width = 64;
-        raindrop.height = 64;
-        enemies.add(raindrop);
+        Rectangle enemy = new Rectangle();
+        enemy.y = MathUtils.random(0, SCREEN_HEIGHT - 64);
+        enemy.x = SCREEN_WIDTH;
+        enemy.width = 64;
+        enemy.height = 64;
+        enemies.add(enemy);
         lastEnemySpawnTime = TimeUtils.nanoTime();
     }
 
@@ -125,13 +143,27 @@ public class FirstLevelScreen implements Screen {
         drawObjects(false);
         processInput();
         checkPlayerBounds();
-        spawnEnemyIfApplicable();
+
+        // enemy business
+        spawnEnemyWhenApplicable();
+
+        // extra life business
+        spawnExtraLifeWhenApplicable();
+//        detectCollisionForExtraLife();
+
+        // bullets and enemies go here
         detectCollision();
     }
 
-    private void spawnEnemyIfApplicable() {
+    private void spawnEnemyWhenApplicable() {
         if (TimeUtils.nanoTime() - lastEnemySpawnTime > ENEMY_SPAWN_RATE_COMPARATOR)
             spawnEnemy();
+    }
+
+    private void spawnExtraLifeWhenApplicable() {
+        if (TimeUtils.nanoTime() - lastExtraLifeSpawnTime > (ENEMY_SPAWN_RATE_COMPARATOR * 4)) {
+            spawnExtraLive();
+        }
     }
 
     private void checkPlayerBounds() {
@@ -196,6 +228,7 @@ public class FirstLevelScreen implements Screen {
         // all drops
         game.batch.begin();
 
+        // TODO: lives count matters
         // draw ui
         if (livesCount >= 1 && !isPaused) {
             game.font.getData().setScale(1.5f);
@@ -211,30 +244,80 @@ public class FirstLevelScreen implements Screen {
         game.batch.draw(playerImage, player.x, player.y);
 
         // TODO: prototype for blinking functionality
-//        if (!blinker.shouldBlink(Gdx.graphics.getDeltaTime())) {
-            for (Rectangle enemy : enemies) {
-                game.batch.draw(enemyImage, enemy.x, enemy.y);
-            }
+        for (Rectangle enemy : enemies) {
+            game.batch.draw(enemyImage, enemy.x, enemy.y);
+        }
 
-            for (Rectangle projectile : projectiles) {
-                game.batch.draw(projectileImage, projectile.x, projectile.y);
-            }
-//        }
+        for (Rectangle life : extraLives) {
+            game.batch.draw(extraLiveImage, life.x, life.y);
+        }
+
+        for (Rectangle projectile : projectiles) {
+            game.batch.draw(projectileImage, projectile.x, projectile.y);
+        }
 
         game.batch.end();
     }
 
+    private void detectCollisionForExtraLife() {
+        Iterator<Rectangle> iterExtraLives = extraLives.iterator();
+        // nope, doesn't work... future me, please check it once you got home
+        while (iterExtraLives.hasNext() && !executionState.equals(ExecutionState.PAUSED)) {
+            Rectangle extraLife = iterExtraLives.next();
+
+            // apply math
+            extraLife.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
+            if (extraLife.x + 64 < 0) iterExtraLives.remove();
+
+            if (extraLife.overlaps(player)) {
+                livesCount++;
+                iterExtraLives.remove();
+            }
+        }
+
+        //        while (shouldDrawExtraLife) {
+        // todo: make a flag to detect if we need to spawn an extra life
+//        extraLives.x -= 120 * Gdx.graphics.getDeltaTime();
+//        if (extraLives.x + 64 < 0) {
+//            extraLives.x = 800;
+////                shouldDrawExtraLife = false; // idea is to keep it always on scene
+//        }
+//
+//        if (player.overlaps(extraLives)) {
+//            livesCount++;
+//            extraLives.x = 800;
+//        }
+
+//            shouldDrawExtraLife = false;
+//        }
+    }
+
+    // TODO: remove me if needed
     private void detectCollision() {
+        // no need for further processing
+        if (executionState.equals(ExecutionState.PAUSED)) return;
+
+        for (Rectangle projectile : projectiles) {
+            projectile.x += MOVE_SPEED * Gdx.graphics.getDeltaTime();
+            for (Rectangle enemy : enemies) {
+                if (enemy.overlaps(projectile)) {
+                    scoreCount++;
+                    enemies.removeIndex(enemies.indexOf(enemy, false));
+                    projectiles.removeIndex(projectiles.indexOf(projectile, false));
+                }
+            }
+
+        }
+
         Iterator<Rectangle> iterEnemies = enemies.iterator();
         // nope, doesn't work... future me, please check it once you got home
-        while (iterEnemies.hasNext() && !executionState.equals(ExecutionState.PAUSED)) {
+        while (iterEnemies.hasNext()) {
             Rectangle enemy = iterEnemies.next();
 
             // apply math
-            enemy.x -= 120 * Gdx.graphics.getDeltaTime();
-            if (enemy.x + 64 < 0)
-                iterEnemies.remove();
-            // TODO: Rewrite, doesn't work properly
+            enemy.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
+            if (enemy.x + 64 < 0) iterEnemies.remove();
+
             if (enemy.overlaps(player)) {
                 livesCount--;
                 iterEnemies.remove();
@@ -245,17 +328,21 @@ public class FirstLevelScreen implements Screen {
             }
         }
 
-        for (Rectangle projectile : projectiles) {
-            projectile.x += 150 * Gdx.graphics.getDeltaTime();
-            for (Rectangle enemy : enemies) {
-                if (enemy.overlaps(projectile)) {
-                    scoreCount++;
-//                    livesCount++;
-                    enemies.removeIndex(enemies.indexOf(enemy, false));
-                    projectiles.removeIndex(projectiles.indexOf(projectile, false));
-                }
-            }
+        // for now I'll leave it here
+        Iterator<Rectangle> iterExtraLives = extraLives.iterator();
+        while (iterExtraLives.hasNext()) {
+            Rectangle life = iterExtraLives.next();
+            life.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
 
+            if (life.x + 64 < 0) iterExtraLives.remove();
+
+            if (life.overlaps(player)) {
+                if (livesCount <= 3) {
+                    livesCount++;
+                }
+
+                iterExtraLives.remove();
+            }
         }
     }
 
@@ -286,6 +373,7 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void resetLevelState() {
+        shouldDrawExtraLife = false;
         executionState = ExecutionState.RUNNING;
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
@@ -300,11 +388,16 @@ public class FirstLevelScreen implements Screen {
         player.width = 64;
         player.height = 64;
 
+        // Extra live pickup part...
+        // TODO: make me array based collision detection
+        extraLives = new Array<>();
+
         // create the raindrops array and spawn the first raindrop
         enemies = new Array<>();
 
-        // init enemies
+        // init
         spawnEnemy();
+        spawnExtraLive();
 
         // setup projectile
         projectiles = new Array<>();
@@ -325,6 +418,7 @@ public class FirstLevelScreen implements Screen {
         projectileImage.dispose();
         playerImage.dispose();
         shootSound.dispose();
+        extraLiveImage.dispose();
 //        rainMusic.dispose();
     }
 
