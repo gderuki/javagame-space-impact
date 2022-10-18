@@ -16,7 +16,7 @@ public class MainMenuScreen implements Screen {
         Gdx.input.setCursorCatched(true);
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 600);
+        camera.setToOrtho(false, 800, 480);
     }
 
     @Override
@@ -29,16 +29,17 @@ public class MainMenuScreen implements Screen {
         // Exit first, anything else later xD
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
 
-        ScreenUtils.clear(0, 0, 0, 1);
+        ScreenUtils.clear(0.549f, 0.730f, 0.504f, 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.getData().setScale(1.5f);
-        game.font.draw(game.batch, "SPACE IMPACT 2022 EDITION", 40, 70);
         game.font.getData().setScale(1);
-        game.font.draw(game.batch, "Press [SPACE] to START", 40, 40);
+        game.font.draw(game.batch, "SPACE IMPACT", 40, 128);
+        game.font.getData().setScale(0.5f);
+        game.font.draw(game.batch, "Press [SPACE] to START", 40, 64);
+        game.font.getData().setScale(1);
 //        game.font.draw(game.batch, "Space Impact 2022", 150, 150);
 //        game.font.draw(game.batch, "Press [SPACE] to begin", 150, 100);
         game.batch.end();

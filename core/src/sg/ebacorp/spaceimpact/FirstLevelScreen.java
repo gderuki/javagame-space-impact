@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 public class FirstLevelScreen implements Screen {
     final DefaultGame game;
-    private final int SCREEN_HEIGHT = 600;
+    private final int SCREEN_HEIGHT = 480;// + 64 + 16;
     private final int SCREEN_WIDTH = 800;
 
     Texture enemyImage;
@@ -38,7 +38,7 @@ public class FirstLevelScreen implements Screen {
     int livesCount = 1;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final int MOVE_SPEED = 120;
+    private final int MOVE_SPEED = 130;
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
@@ -49,6 +49,9 @@ public class FirstLevelScreen implements Screen {
     private final long PROJECTILE_RATE_COMPARATOR = 180000000; // og: 1000000000
 
     private ExecutionState executionState;
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int TOP_BAR_OFFSET = (SCREEN_HEIGHT - 64 - 16);
 
     public FirstLevelScreen(final DefaultGame gam) {
         this.game = gam;
@@ -61,7 +64,7 @@ public class FirstLevelScreen implements Screen {
     private void initAssets() {
         // load the images for the droplet and the bucket, 64x64 pixels each
         enemyImage = new Texture(Gdx.files.internal("enemy.png"));
-        projectileImage = new Texture(Gdx.files.internal("laser.png"));
+        projectileImage = new Texture(Gdx.files.internal("laser_small.png"));
         playerImage = new Texture(Gdx.files.internal("ship.png"));
         extraLiveImage = new Texture(Gdx.files.internal("extra_life.png"));
 
@@ -71,7 +74,7 @@ public class FirstLevelScreen implements Screen {
 
     private void spawnExtraLive() {
         Rectangle extraLive = new Rectangle();
-        extraLive.y = MathUtils.random(0, SCREEN_HEIGHT - 160 - 64);
+        extraLive.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
         extraLive.x = SCREEN_WIDTH - 64;
         extraLive.width = 64;
         extraLive.height = 64;
@@ -83,7 +86,7 @@ public class FirstLevelScreen implements Screen {
 
     private void spawnEnemy() {
         Rectangle enemy = new Rectangle();
-        enemy.y = MathUtils.random(0, SCREEN_HEIGHT - 160 - 64);
+        enemy.y = MathUtils.random(0, TOP_BAR_OFFSET - 64 - 16);
         enemy.x = SCREEN_WIDTH;
         enemy.width = 64;
         enemy.height = 64;
@@ -94,9 +97,9 @@ public class FirstLevelScreen implements Screen {
     private void spawnProjectile() {
         Rectangle projectile = new Rectangle();
         projectile.y = player.y;
-        projectile.x = player.x + 64;
-        projectile.width = 64;
-        projectile.height = 64;
+        projectile.x = player.x + 48 + 8;
+        projectile.width = 48;
+        projectile.height = 48;
         projectiles.add(projectile);
         lastProjectileSpawnTime = TimeUtils.nanoTime();
     }
@@ -121,7 +124,7 @@ public class FirstLevelScreen implements Screen {
         // food for thought: refactor/optimize later if needed
         drawObjects(false);
         processInput();
-        checkPlayerBounds();
+        playerMovement();
 
         // enemy business
         spawnEnemyWhenApplicable();
@@ -145,9 +148,11 @@ public class FirstLevelScreen implements Screen {
         }
     }
 
-    private void checkPlayerBounds() {
+    private void playerMovement() {
         if (player.y < 0 + 16) player.y = 0 + 16;
-        if (player.y > SCREEN_HEIGHT - 160 - 64 - 16) player.y = SCREEN_HEIGHT - 160 - 64 - 16;
+        if (player.y > TOP_BAR_OFFSET - 64 - 16) {
+            player.y = TOP_BAR_OFFSET - 64 - 16;
+        }
 
         if (player.x < 0 + 16) player.x = 0 + 16;
         if (player.x > SCREEN_WIDTH - 64 - 16) player.x = SCREEN_WIDTH - 64 - 16;
@@ -206,14 +211,14 @@ public class FirstLevelScreen implements Screen {
 
         // draw ui
         if (livesCount >= 1 && !isPaused) {
-            game.font.getData().setScale(1.5f);
+//            game.font.getData().setScale(1.5f);
             // draw live icons here instead of a count...
             drawExtraLives();
             drawScoreUI();
         } else {
-            game.font.getData().setScale(1.5f);
+//            game.font.getData().setScale(1.5f);
             game.font.draw(game.batch, "GAME OVER!", 40, 70);
-            game.font.getData().setScale(1.0f);
+//            game.font.getData().setScale(1.0f);
             game.font.draw(game.batch, "Press [SPACE] to restart", 40, 40);
         }
 
@@ -237,19 +242,48 @@ public class FirstLevelScreen implements Screen {
 
     private void drawExtraLives() {
         if (livesCount == 2) {
-            game.batch.draw(extraLiveImage, 20, 600 - 64 - 20);
+            game.batch.draw(
+                    extraLiveImage,
+                    16,
+                    TOP_BAR_OFFSET
+            );
         } else if (livesCount == 3) {
-            game.batch.draw(extraLiveImage, 20, 600 - 64 - 20);
-            game.batch.draw(extraLiveImage, 20 + 8 + 64, 600 - 64 - 20);
+            game.batch.draw(
+                    extraLiveImage,
+                    16,
+                    TOP_BAR_OFFSET
+            );
+            game.batch.draw(
+                    extraLiveImage,
+                    16 + 8 + 64,
+                    TOP_BAR_OFFSET
+            );
         } else if (livesCount == 4) {
-            game.batch.draw(extraLiveImage, 20, 600 - 64 - 20);
-            game.batch.draw(extraLiveImage, 20 + 8 + 64, 600 - 64 - 20);
-            game.batch.draw(extraLiveImage, 20 + 8 + 64 + 8 + 64, 600 - 64 - 20);
+            game.batch.draw(
+                    extraLiveImage,
+                    16,
+                    TOP_BAR_OFFSET
+            );
+            game.batch.draw(
+                    extraLiveImage,
+                    16 + 8 + 64,
+                    TOP_BAR_OFFSET
+            );
+            game.batch.draw(
+                    extraLiveImage,
+                    16 + 8 + 64 + 8 + 64,
+                    TOP_BAR_OFFSET
+            );
         }
     }
 
     private void drawScoreUI() {
-        game.font.draw(game.batch, String.valueOf(scoreCount), 680, 580);
+        game.font.draw(
+                game.batch,
+                String.valueOf(scoreCount),
+                SCREEN_WIDTH - 96 - 32,
+                TOP_BAR_OFFSET + 64
+        );
     }
 
     // TODO: remove me if needed
@@ -258,12 +292,12 @@ public class FirstLevelScreen implements Screen {
         if (executionState.equals(ExecutionState.PAUSED)) return;
 
         for (Rectangle projectile : projectiles) {
-            projectile.x += MOVE_SPEED * Gdx.graphics.getDeltaTime();
+            projectile.x += (MOVE_SPEED * 1.75) * Gdx.graphics.getDeltaTime();
             for (Rectangle enemy : enemies) {
                 if (enemy.overlaps(projectile)) {
                     // for now we'll leave it like that
                     // TODO: make me diverse, based on enemy type
-                    scoreCount += 20;
+                    scoreCount += MathUtils.random(5, 20);
 
                     enemies.removeIndex(enemies.indexOf(enemy, false));
                     projectiles.removeIndex(projectiles.indexOf(projectile, false));
@@ -302,6 +336,8 @@ public class FirstLevelScreen implements Screen {
                 if (livesCount <= 3) {
                     livesCount++;
                 }
+
+                scoreCount += MathUtils.random(50, 100);
 
                 iterExtraLives.remove();
             }
@@ -343,9 +379,9 @@ public class FirstLevelScreen implements Screen {
 
         // create a Rectangle to logically represent the bucket
         player = new Rectangle();
-        player.x = 20; // bottom left corner of the bucket is 20 pixels above
+        player.x = 16; // bottom left corner of the bucket is 20 pixels above
         //noinspection IntegerDivisionInFloatingPointContext
-        player.y = SCREEN_HEIGHT / 2 - 20; // center the bucket horizontally
+        player.y = SCREEN_HEIGHT / 2 - 16; // center the bucket horizontally
         // the bottom screen edge
         player.width = 64;
         player.height = 64;

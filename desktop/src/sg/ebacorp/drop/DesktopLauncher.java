@@ -10,7 +10,7 @@ public class DesktopLauncher {
     private final static boolean IS_DEBUG = true;
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setWindowedMode(800, 600);
+        config.setWindowedMode(800, 480);
         config.setForegroundFPS(30);
 
         // Fullscreen
