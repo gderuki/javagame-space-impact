@@ -16,7 +16,7 @@ public class MainMenuScreen implements Screen {
         Gdx.input.setCursorCatched(true);
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, 800, 600);
     }
 
     @Override
