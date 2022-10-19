@@ -97,8 +97,8 @@ public class FirstLevelScreen implements Screen {
     private void spawnProjectile() {
         Rectangle projectile = new Rectangle();
         projectile.y = player.y;
-        projectile.x = player.x + 48 + 8;
-        projectile.width = 48;
+        projectile.x = player.x + 64;
+        projectile.width = 32;
         projectile.height = 48;
         projectiles.add(projectile);
         lastProjectileSpawnTime = TimeUtils.nanoTime();
@@ -183,6 +183,7 @@ public class FirstLevelScreen implements Screen {
         // add an extra life
         if (Gdx.input.isKeyPressed(Keys.NUM_0)) {
             livesCount = 3;
+            scoreCount += 500;
         }
     }
 
@@ -280,10 +281,40 @@ public class FirstLevelScreen implements Screen {
     private void drawScoreUI() {
         game.font.draw(
                 game.batch,
-                String.valueOf(scoreCount),
-                SCREEN_WIDTH - 96 - 32,
-                TOP_BAR_OFFSET + 64
+                formatScore(),
+                SCREEN_WIDTH - 256 - 64,
+                TOP_BAR_OFFSET + 62 // consider having 60 here...
         );
+    }
+
+    private String formatScore() {
+        String str = String.valueOf(scoreCount);
+        String formattedString = "00000";
+
+        // 0 - def
+        switch (String.valueOf(scoreCount).length()) {
+            case 1: {
+                formattedString = "0000" + str;
+                break;
+            }
+            case 2: {
+                formattedString = "000" + str;
+                break;
+            }
+            case 3: {
+                formattedString = "00" + str;
+                break;
+            }
+            case 4: {
+                formattedString = "0" + str;
+                break;
+            }
+            case 5: {
+                formattedString = str;
+                break;
+            }
+        }
+        return formattedString;
     }
 
     // TODO: remove me if needed

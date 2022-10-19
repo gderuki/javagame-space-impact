@@ -17,7 +17,7 @@ public class DefaultGame extends Game {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Minecraft.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 64;
+        parameter.size = 60;
         parameter.borderWidth = 1;
         parameter.color = Color.BLACK;
         parameter.shadowOffsetX = 1;
