@@ -324,7 +324,7 @@ public class FirstLevelScreen implements Screen {
             }
         }
 
-        // for now I'll leave it here
+        // for now, I'll leave it here
         Iterator<Rectangle> iterExtraLives = extraLives.iterator();
         while (iterExtraLives.hasNext()) {
             Rectangle life = iterExtraLives.next();

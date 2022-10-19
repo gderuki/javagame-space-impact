@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MainMenuScreen implements Screen {
     final DefaultGame game;
-    OrthographicCamera camera;
+    final OrthographicCamera camera;
 
     public MainMenuScreen(DefaultGame game) {
         this.game = game;
@@ -44,8 +44,7 @@ public class MainMenuScreen implements Screen {
         game.font.getData().setScale(0.5f);
         game.font.draw(game.batch, "Press [SPACE] to START", 40, 64);
         game.font.getData().setScale(1);
-//        game.font.draw(game.batch, "Space Impact 2022", 150, 150);
-//        game.font.draw(game.batch, "Press [SPACE] to begin", 150, 100);
+
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
