@@ -14,18 +14,17 @@ public class DefaultGame extends Game {
 
     public void create() {
         batch = new SpriteBatch();
-        // Use LibGDX's default Arial font.
+
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Minecraft.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 64;
         parameter.borderWidth = 1;
         parameter.color = Color.BLACK;
-         parameter.shadowOffsetX = 1;
-         parameter.shadowOffsetY = 1;
+        parameter.shadowOffsetX = 1;
+        parameter.shadowOffsetY = 1;
         parameter.shadowColor = new Color(0, 0.5f, 0, 0.75f);
         BitmapFont font24 = generator.generateFont(parameter); // font size 24 pixels
         generator.dispose();
-
         font = font24;
 
         this.setScreen(new MainMenuScreen(this));
