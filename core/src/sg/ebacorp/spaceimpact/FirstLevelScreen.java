@@ -182,8 +182,8 @@ public class FirstLevelScreen implements Screen {
 
         // add an extra life
         if (Gdx.input.isKeyPressed(Keys.NUM_0)) {
-            livesCount = 3;
-            scoreCount += 500;
+            livesCount = 4;
+            scoreCount += MathUtils.random(20, 100);
         }
     }
 
