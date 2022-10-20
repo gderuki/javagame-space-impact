@@ -39,11 +39,11 @@ public class MainMenuScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.getData().setScale(1);
+        game.font.getData().setScale(0.94f);
         game.font.draw(game.batch, "SPACE IMPACT", 40, 128);
         game.font.getData().setScale(0.5f);
         game.font.draw(game.batch, "Press [SPACE] to START", 40, 64);
-        game.font.getData().setScale(1);
+        game.font.getData().setScale(0.94f);
 
         game.batch.end();
 

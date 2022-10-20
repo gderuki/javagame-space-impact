@@ -65,7 +65,7 @@ public class FirstLevelScreen implements Screen {
         // load the images for the droplet and the bucket, 64x64 pixels each
         enemyImage = new Texture(Gdx.files.internal("enemy.png"));
         projectileImage = new Texture(Gdx.files.internal("laser_small.png"));
-        playerImage = new Texture(Gdx.files.internal("ship.png"));
+        playerImage = new Texture(Gdx.files.internal("ship2.png"));
         extraLiveImage = new Texture(Gdx.files.internal("extra_life.png"));
 
         // load the drop sound effect and the rain background "music"
@@ -96,10 +96,10 @@ public class FirstLevelScreen implements Screen {
 
     private void spawnProjectile() {
         Rectangle projectile = new Rectangle();
-        projectile.y = player.y;
-        projectile.x = player.x + 64;
+        projectile.y = player.y + 24;
+        projectile.x = player.x + 91;
         projectile.width = 32;
-        projectile.height = 48;
+        projectile.height = 16;
         projectiles.add(projectile);
         lastProjectileSpawnTime = TimeUtils.nanoTime();
     }
@@ -150,12 +150,12 @@ public class FirstLevelScreen implements Screen {
 
     private void playerMovement() {
         if (player.y < 0 + 16) player.y = 0 + 16;
-        if (player.y > TOP_BAR_OFFSET - 64 - 16) {
-            player.y = TOP_BAR_OFFSET - 64 - 16;
+        if (player.y > TOP_BAR_OFFSET - 91 - 16) {
+            player.y = TOP_BAR_OFFSET - 91 - 16;
         }
 
         if (player.x < 0 + 16) player.x = 0 + 16;
-        if (player.x > SCREEN_WIDTH - 64 - 16) player.x = SCREEN_WIDTH - 64 - 16;
+        if (player.x > SCREEN_WIDTH - 91 - 16) player.x = SCREEN_WIDTH - 91 - 16;
     }
 
     private void processInput() {
@@ -282,7 +282,7 @@ public class FirstLevelScreen implements Screen {
         game.font.draw(
                 game.batch,
                 formatScore(),
-                SCREEN_WIDTH - 256 - 64,
+                SCREEN_WIDTH - 256 - 48,
                 TOP_BAR_OFFSET + 62 // consider having 60 here...
         );
     }
@@ -328,7 +328,7 @@ public class FirstLevelScreen implements Screen {
                 if (enemy.overlaps(projectile)) {
                     // for now we'll leave it like that
                     // TODO: make me diverse, based on enemy type
-                    scoreCount += MathUtils.random(5, 20);
+                    scoreCount += 20;
 
                     enemies.removeIndex(enemies.indexOf(enemy, false));
                     projectiles.removeIndex(projectiles.indexOf(projectile, false));
@@ -414,7 +414,7 @@ public class FirstLevelScreen implements Screen {
         //noinspection IntegerDivisionInFloatingPointContext
         player.y = SCREEN_HEIGHT / 2 - 16; // center the bucket horizontally
         // the bottom screen edge
-        player.width = 64;
+        player.width = 91;
         player.height = 64;
 
         // Extra live pickup part...
