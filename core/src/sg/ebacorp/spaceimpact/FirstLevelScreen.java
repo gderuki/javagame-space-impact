@@ -24,6 +24,7 @@ public class FirstLevelScreen implements Screen {
     Texture projectileImage;
     Texture playerImage;
     Texture extraLiveImage;
+    Texture obstacleImage;
     Sound shootSound;
     //    Music rainMusic;
     OrthographicCamera camera;
@@ -31,9 +32,11 @@ public class FirstLevelScreen implements Screen {
     Array<Rectangle> extraLives;
     Array<Rectangle> enemies;
     Array<Rectangle> projectiles;
+    Array<Rectangle> obstacles;
     long lastEnemySpawnTime;
     long lastExtraLifeSpawnTime;
     long lastProjectileSpawnTime;
+    long lastObstacleSpawnTime;
     int scoreCount;
     int livesCount = 1;
 
@@ -65,8 +68,9 @@ public class FirstLevelScreen implements Screen {
         // load the images for the droplet and the bucket, 64x64 pixels each
         enemyImage = new Texture(Gdx.files.internal("enemy.png"));
         projectileImage = new Texture(Gdx.files.internal("laser_small.png"));
-        playerImage = new Texture(Gdx.files.internal("ship2.png"));
+        playerImage = new Texture(Gdx.files.internal("ship.png"));
         extraLiveImage = new Texture(Gdx.files.internal("extra_life.png"));
+        obstacleImage = new Texture(Gdx.files.internal("obstacle.png"));
 
         // load the drop sound effect and the rain background "music"
         shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
@@ -81,6 +85,16 @@ public class FirstLevelScreen implements Screen {
         // we add -> we clean on pickup, we repopulate
         extraLives.add(extraLive);
         lastExtraLifeSpawnTime = TimeUtils.nanoTime();
+    }
+
+    private void spawnObstacle() {
+        Rectangle obstacle = new Rectangle();
+        obstacle.y = 0;//MathUtils.random(0, TOP_BAR_OFFSET - 64 - 16);
+        obstacle.x = SCREEN_WIDTH;
+        obstacle.width = 64;
+        obstacle.height = 64;
+        obstacles.add(obstacle);
+        lastObstacleSpawnTime = TimeUtils.nanoTime();
     }
 
 
@@ -129,6 +143,9 @@ public class FirstLevelScreen implements Screen {
         // enemy business
         spawnEnemyWhenApplicable();
 
+        // obstacles
+        spawnObstacleWhenApplicable();
+
         // extra life business
         spawnExtraLifeWhenApplicable();
 //        detectCollisionForExtraLife();
@@ -136,6 +153,13 @@ public class FirstLevelScreen implements Screen {
         // bullets and enemies go here
         detectCollision();
     }
+
+    private void spawnObstacleWhenApplicable() {
+        if (TimeUtils.nanoTime() - lastObstacleSpawnTime > (ENEMY_SPAWN_RATE_COMPARATOR * 8)) {
+            spawnObstacle();
+        }
+    }
+
 
     private void spawnEnemyWhenApplicable() {
         if (TimeUtils.nanoTime() - lastEnemySpawnTime > ENEMY_SPAWN_RATE_COMPARATOR)
@@ -238,6 +262,10 @@ public class FirstLevelScreen implements Screen {
             game.batch.draw(projectileImage, projectile.x, projectile.y);
         }
 
+        for (Rectangle obstacle : obstacles) {
+            game.batch.draw(obstacleImage, obstacle.x, obstacle.y);
+        }
+
         game.batch.end();
     }
 
@@ -321,6 +349,10 @@ public class FirstLevelScreen implements Screen {
     private void detectCollision() {
         // no need for further processing
         if (executionState.equals(ExecutionState.PAUSED)) return;
+
+        for (Rectangle obstacle : obstacles) {
+            obstacle.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
+        }
 
         for (Rectangle projectile : projectiles) {
             projectile.x += (MOVE_SPEED * 1.75) * Gdx.graphics.getDeltaTime();
@@ -424,6 +456,8 @@ public class FirstLevelScreen implements Screen {
         // create the raindrops array and spawn the first raindrop
         enemies = new Array<>();
 
+        obstacles = new Array<>();
+
         // init
         spawnEnemy();
         spawnExtraLive();
@@ -448,5 +482,6 @@ public class FirstLevelScreen implements Screen {
         playerImage.dispose();
         shootSound.dispose();
         extraLiveImage.dispose();
+        obstacleImage.dispose();
     }
 }
