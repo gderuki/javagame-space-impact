@@ -150,8 +150,8 @@ public class FirstLevelScreen implements Screen {
 
     private void playerMovement() {
         if (player.y < 0 + 16) player.y = 0 + 16;
-        if (player.y > TOP_BAR_OFFSET - 91 - 16) {
-            player.y = TOP_BAR_OFFSET - 91 - 16;
+        if (player.y > TOP_BAR_OFFSET - 64 - 16) {
+            player.y = TOP_BAR_OFFSET - 64 - 16;
         }
 
         if (player.x < 0 + 16) player.x = 0 + 16;
