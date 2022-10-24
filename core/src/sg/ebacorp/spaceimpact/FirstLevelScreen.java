@@ -46,12 +46,12 @@ public class FirstLevelScreen implements Screen {
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
-    private final long ENEMY_SPAWN_RATE_COMPARATOR = (1000000000L * 2L);
+    private final long ENEMY_SPAWN_RATE_COMPARATOR = (500000000L);
     @SuppressWarnings("FieldCanBeLocal")
-    private final long EXTRA_LIFE_SPAWN_RATE_COMPARATOR = (8000000000L * 2L);
+    private final long EXTRA_LIFE_SPAWN_RATE_COMPARATOR = (4000000000L * 2L);
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final long OBSTACLE_SPAWN_RATE_COMPARATOR = (4000000000L * 2L);
+    private final long OBSTACLE_SPAWN_RATE_COMPARATOR = (2000000000L * 2L);
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
@@ -61,6 +61,13 @@ public class FirstLevelScreen implements Screen {
 
     @SuppressWarnings("FieldCanBeLocal")
     private final int TOP_BAR_OFFSET = (SCREEN_HEIGHT - 64 - 16);
+
+    private int randomLUTCounter = 0;
+    private final int[] randomLUT = {
+            2, 13, 16, 17, 20, 22, 31, 34, 41, 43, 45, 52, 55, 56, 58, 64, 68, 70, 71, 73, 74, 78, 80, 81, 89, 95, 99,
+            101, 103, 106, 111, 116, 118, 133, 141, 143, 148, 150, 158, 167, 171, 177, 178, 182, 185, 188, 192, 196,
+            200, 202, 205, 207, 214, 226, 232, 237, 238, 241, 244, 245, 249, 250, 251, 256
+    };
 
     public FirstLevelScreen(final DefaultGame gam) {
         this.game = gam;
@@ -173,19 +180,31 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void spawnObstacleWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastObstacleSpawnTime > (OBSTACLE_SPAWN_RATE_COMPARATOR * MathUtils.random(4, 12))) {
+        if (TimeUtils.nanoTime() - lastObstacleSpawnTime
+                >
+                (OBSTACLE_SPAWN_RATE_COMPARATOR * getNextRandomInteger())
+        ) {
             spawnObstacle();
         }
     }
 
+    private int getNextRandomInteger() {
+        // Ssanity check
+        if (randomLUTCounter >= 63) {
+            randomLUTCounter = 0;
+        }
+
+        return randomLUT[++randomLUTCounter];
+    }
+
 
     private void spawnEnemyWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastEnemySpawnTime > ENEMY_SPAWN_RATE_COMPARATOR)
+        if (TimeUtils.nanoTime() - lastEnemySpawnTime > (ENEMY_SPAWN_RATE_COMPARATOR * getNextRandomInteger()))
             spawnEnemy();
     }
 
     private void spawnExtraLifeWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastExtraLifeSpawnTime > EXTRA_LIFE_SPAWN_RATE_COMPARATOR) {
+        if (TimeUtils.nanoTime() - lastExtraLifeSpawnTime > EXTRA_LIFE_SPAWN_RATE_COMPARATOR * getNextRandomInteger()) {
             spawnExtraLive();
         }
     }
@@ -201,6 +220,11 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void processInput() {
+        if (Gdx.input.isKeyPressed(Keys.NUM_9)) {
+            livesCount = 0;
+            executionState = ExecutionState.PAUSED;
+        }
+
         if (Gdx.input.isKeyPressed(Keys.UP)) {
             player.y = player.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
         }
@@ -225,7 +249,7 @@ public class FirstLevelScreen implements Screen {
         // add an extra life
         if (Gdx.input.isKeyPressed(Keys.NUM_0)) {
             livesCount = 4;
-            scoreCount += MathUtils.random(20, 100);
+            scoreCount += 40;
         }
     }
 
@@ -234,12 +258,7 @@ public class FirstLevelScreen implements Screen {
         // arguments to clear are the red, green
         // blue and alpha component in the range [0,1]
         // of the color to be used to clear the screen.
-        if (isPaused) {
-            ScreenUtils.clear(0.560f, 0, 0, 1);
-        } else {
-            // background color
-            ScreenUtils.clear(0.549f, 0.730f, 0.504f, 1);
-        }
+        ScreenUtils.clear(0.549f, 0.730f, 0.504f, 1);
 
         // tell the camera to update its matrices.
         camera.update();
@@ -259,10 +278,12 @@ public class FirstLevelScreen implements Screen {
             drawExtraLives();
             drawScoreUI();
         } else {
-//            game.font.getData().setScale(1.5f);
-            game.font.draw(game.batch, "GAME OVER!", 40, 70);
-//            game.font.getData().setScale(1.0f);
-            game.font.draw(game.batch, "Press [SPACE] to restart", 40, 40);
+            game.font.getData().setScale(0.94f);
+            game.font.draw(game.batch, "GAME OVER!", 40, 128);
+            game.font.getData().setScale(0.35f);
+            game.font.draw(game.batch, "Press [SPACE] to restart", 40, 64);
+            game.font.draw(game.batch, "- or press [ESC] to quit", 40, 32);
+            game.font.getData().setScale(0.94f);
         }
 
         game.batch.draw(playerImage, player.x, player.y);
@@ -376,10 +397,11 @@ public class FirstLevelScreen implements Screen {
                 // TODO: remember what I meant by next line xD
                 // TODO: make me work
                 if (livesCount > 1) {
-                    executionState = ExecutionState.PAUSED;
+                    livesCount--;
                     if (TimeUtils.nanoTime() - lastRespawnTime > OBSTACLE_SPAWN_RATE_COMPARATOR) {
                         resetLevelState(true);
                     }
+                    executionState = ExecutionState.PAUSED;
                 } else {
                     break;
                 }
@@ -439,7 +461,7 @@ public class FirstLevelScreen implements Screen {
                     livesCount++;
                 }
 
-                scoreCount += MathUtils.random(50, 100);
+                scoreCount += 40;
 
                 iterExtraLives.remove();
             }
@@ -464,8 +486,7 @@ public class FirstLevelScreen implements Screen {
     @Override
     public void pause() {
         if (Gdx.input.isKeyPressed(Keys.SPACE) || Gdx.input.isKeyPressed(Keys.R)) {
-            resetLevelState(false);
-
+            resetLevelState(livesCount >= 1 && scoreCount > 0);
             executionState = ExecutionState.RUNNING;
         }
 
@@ -473,52 +494,45 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void resetLevelState(boolean shouldRespawn) {
-        if (shouldRespawn) {
-            livesCount--;
-            //noinspection IntegerDivisionInFloatingPointContext
-            player.y = SCREEN_WIDTH / 2 + 32;
-            player.x = 16;
-            executionState = ExecutionState.RUNNING;
-        } else {
-            executionState = ExecutionState.RUNNING;
-            // create the camera and the SpriteBatch
-            camera = new OrthographicCamera();
-            camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
+        getSessionState();
 
-            // create a Rectangle to logically represent the bucket
-            player = new Rectangle();
-            player.x = 16; // bottom left corner of the bucket is 20 pixels above
-            //noinspection IntegerDivisionInFloatingPointContext
-            player.y = SCREEN_HEIGHT / 2 - 16; // center the bucket horizontally
-            // the bottom screen edge
-            player.width = 91;
-            player.height = 64;
-
-            // Extra live pickup part...
-            // TODO: make me array based collision detection
-            extraLives = new Array<>();
-
-            // create the raindrops array and spawn the first raindrop
-            enemies = new Array<>();
-
-            obstacles = new Array<>();
-
-            // init
-            spawnEnemy();
-
-            // setup projectile
-            projectiles = new Array<>();
-            lastProjectileSpawnTime = TimeUtils.nanoTime();
-
-            // stats
-
+        if (!shouldRespawn) {
             livesCount = 1;
             scoreCount = 0;
-
-            // INFO: we don't reset other timers here, cause e.g. enemy timer is being reset inside `spawnEnemy()`
-            lastExtraLifeSpawnTime = TimeUtils.nanoTime();
-            lastObstacleSpawnTime = TimeUtils.nanoTime(); // natural delay
         }
+
+        executionState = ExecutionState.RUNNING;
+    }
+
+    private void getSessionState() {
+        // create the camera and the SpriteBatch
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        // create a Rectangle to logically represent the bucket
+        player = new Rectangle();
+        player.x = 16; // bottom left corner of the bucket is 20 pixels above
+        //noinspection IntegerDivisionInFloatingPointContext
+        player.y = SCREEN_HEIGHT / 2 - 16; // center the bucket horizontally
+        // the bottom screen edge
+        player.width = 91;
+        player.height = 64;
+
+        // Extra live pickup part...
+        extraLives = new Array<>();
+        enemies = new Array<>();
+        obstacles = new Array<>();
+
+        // setup projectile
+        projectiles = new Array<>();
+
+        // INFO: we don't reset other timers here, cause e.g. enemy timer is being reset inside `spawnEnemy()`
+        lastProjectileSpawnTime = TimeUtils.nanoTime();
+        lastExtraLifeSpawnTime = TimeUtils.nanoTime();
+        lastObstacleSpawnTime = TimeUtils.nanoTime(); // natural delay
+
+        // init
+        spawnEnemy();
     }
 
     @Override
