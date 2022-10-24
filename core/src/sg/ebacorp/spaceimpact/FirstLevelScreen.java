@@ -37,6 +37,7 @@ public class FirstLevelScreen implements Screen {
     long lastExtraLifeSpawnTime;
     long lastProjectileSpawnTime;
     long lastObstacleSpawnTime;
+    long lastRespawnTime;
     int scoreCount;
     int livesCount = 1;
 
@@ -45,7 +46,12 @@ public class FirstLevelScreen implements Screen {
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
-    private final long ENEMY_SPAWN_RATE_COMPARATOR = (1000000000 * 2L);
+    private final long ENEMY_SPAWN_RATE_COMPARATOR = (1000000000L * 2L);
+    @SuppressWarnings("FieldCanBeLocal")
+    private final long EXTRA_LIFE_SPAWN_RATE_COMPARATOR = (8000000000L * 2L);
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private final long OBSTACLE_SPAWN_RATE_COMPARATOR = (4000000000L * 2L);
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
@@ -61,7 +67,7 @@ public class FirstLevelScreen implements Screen {
         initAssets();
 
         // TODO: get back on this one some time later
-        resetLevelState();
+        resetLevelState(false);
     }
 
     private void initAssets() {
@@ -78,7 +84,13 @@ public class FirstLevelScreen implements Screen {
 
     private void spawnExtraLive() {
         Rectangle extraLive = new Rectangle();
-        extraLive.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
+
+        if (obstacles.size > 0) {
+            extraLive.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
+        } else {
+            extraLive.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
+        }
+
         extraLive.x = SCREEN_WIDTH - 64;
         extraLive.width = 64;
         extraLive.height = 64;
@@ -100,7 +112,13 @@ public class FirstLevelScreen implements Screen {
 
     private void spawnEnemy() {
         Rectangle enemy = new Rectangle();
-        enemy.y = MathUtils.random(0, TOP_BAR_OFFSET - 64 - 16);
+
+        if (obstacles.size > 0) {
+            enemy.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
+        } else {
+            enemy.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
+        }
+
         enemy.x = SCREEN_WIDTH;
         enemy.width = 64;
         enemy.height = 64;
@@ -155,7 +173,7 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void spawnObstacleWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastObstacleSpawnTime > (ENEMY_SPAWN_RATE_COMPARATOR * 8)) {
+        if (TimeUtils.nanoTime() - lastObstacleSpawnTime > (OBSTACLE_SPAWN_RATE_COMPARATOR * MathUtils.random(4, 12))) {
             spawnObstacle();
         }
     }
@@ -167,7 +185,7 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void spawnExtraLifeWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastExtraLifeSpawnTime > (ENEMY_SPAWN_RATE_COMPARATOR * 4)) {
+        if (TimeUtils.nanoTime() - lastExtraLifeSpawnTime > EXTRA_LIFE_SPAWN_RATE_COMPARATOR) {
             spawnExtraLive();
         }
     }
@@ -352,10 +370,25 @@ public class FirstLevelScreen implements Screen {
 
         for (Rectangle obstacle : obstacles) {
             obstacle.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
+
+            if (obstacle.overlaps(player)) {
+                lastRespawnTime = TimeUtils.nanoTime();
+                // TODO: remember what I meant by next line xD
+                // TODO: make me work
+                if (livesCount > 1) {
+                    executionState = ExecutionState.PAUSED;
+                    if (TimeUtils.nanoTime() - lastRespawnTime > OBSTACLE_SPAWN_RATE_COMPARATOR) {
+                        resetLevelState(true);
+                    }
+                } else {
+                    break;
+                }
+            }
         }
 
         for (Rectangle projectile : projectiles) {
             projectile.x += (MOVE_SPEED * 1.75) * Gdx.graphics.getDeltaTime();
+
             for (Rectangle enemy : enemies) {
                 if (enemy.overlaps(projectile)) {
                     // for now we'll leave it like that
@@ -363,6 +396,12 @@ public class FirstLevelScreen implements Screen {
                     scoreCount += 20;
 
                     enemies.removeIndex(enemies.indexOf(enemy, false));
+                    projectiles.removeIndex(projectiles.indexOf(projectile, false));
+                }
+            }
+
+            for (Rectangle obstacle : obstacles) {
+                if (projectile.overlaps(obstacle)) {
                     projectiles.removeIndex(projectiles.indexOf(projectile, false));
                 }
             }
@@ -425,7 +464,7 @@ public class FirstLevelScreen implements Screen {
     @Override
     public void pause() {
         if (Gdx.input.isKeyPressed(Keys.SPACE) || Gdx.input.isKeyPressed(Keys.R)) {
-            resetLevelState();
+            resetLevelState(false);
 
             executionState = ExecutionState.RUNNING;
         }
@@ -433,42 +472,53 @@ public class FirstLevelScreen implements Screen {
         drawObjects(true);
     }
 
-    private void resetLevelState() {
-        executionState = ExecutionState.RUNNING;
+    private void resetLevelState(boolean shouldRespawn) {
+        if (shouldRespawn) {
+            livesCount--;
+            //noinspection IntegerDivisionInFloatingPointContext
+            player.y = SCREEN_WIDTH / 2 + 32;
+            player.x = 16;
+            executionState = ExecutionState.RUNNING;
+        } else {
+            executionState = ExecutionState.RUNNING;
+            // create the camera and the SpriteBatch
+            camera = new OrthographicCamera();
+            camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        // create the camera and the SpriteBatch
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
+            // create a Rectangle to logically represent the bucket
+            player = new Rectangle();
+            player.x = 16; // bottom left corner of the bucket is 20 pixels above
+            //noinspection IntegerDivisionInFloatingPointContext
+            player.y = SCREEN_HEIGHT / 2 - 16; // center the bucket horizontally
+            // the bottom screen edge
+            player.width = 91;
+            player.height = 64;
 
-        // create a Rectangle to logically represent the bucket
-        player = new Rectangle();
-        player.x = 16; // bottom left corner of the bucket is 20 pixels above
-        //noinspection IntegerDivisionInFloatingPointContext
-        player.y = SCREEN_HEIGHT / 2 - 16; // center the bucket horizontally
-        // the bottom screen edge
-        player.width = 91;
-        player.height = 64;
+            // Extra live pickup part...
+            // TODO: make me array based collision detection
+            extraLives = new Array<>();
 
-        // Extra live pickup part...
-        // TODO: make me array based collision detection
-        extraLives = new Array<>();
+            // create the raindrops array and spawn the first raindrop
+            enemies = new Array<>();
 
-        // create the raindrops array and spawn the first raindrop
-        enemies = new Array<>();
+            obstacles = new Array<>();
 
-        obstacles = new Array<>();
+            // init
+            spawnEnemy();
 
-        // init
-        spawnEnemy();
-        spawnExtraLive();
+            // setup projectile
+            projectiles = new Array<>();
+            lastProjectileSpawnTime = TimeUtils.nanoTime();
 
-        // setup projectile
-        projectiles = new Array<>();
-        lastProjectileSpawnTime = TimeUtils.nanoTime();
+            // stats
 
-        // stats
-        livesCount = 1;
-        scoreCount = 0;
+            livesCount = 1;
+            scoreCount = 0;
+
+            // INFO: we don't reset other timers here, cause e.g. enemy timer is being reset inside `spawnEnemy()`
+            lastExtraLifeSpawnTime = TimeUtils.nanoTime();
+            lastObstacleSpawnTime = TimeUtils.nanoTime(); // natural delay
+        }
     }
 
     @Override
