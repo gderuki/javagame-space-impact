@@ -15,7 +15,7 @@ public class RuntimeConfig {
 
     public static RuntimeConfig getInstance() {
         if (RuntimeConfig.instance == null) {
-            RuntimeConfig.instance = new RuntimeConfig(800, 480, 30);
+            RuntimeConfig.instance = new RuntimeConfig(800, 480, 60);
         }
 
         return RuntimeConfig.instance;
