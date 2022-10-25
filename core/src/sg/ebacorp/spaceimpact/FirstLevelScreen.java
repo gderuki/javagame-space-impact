@@ -46,12 +46,12 @@ public class FirstLevelScreen implements Screen {
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
-    private final long ENEMY_SPAWN_RATE_COMPARATOR = (500000000L);
+    private final long ENEMY_SPAWN_RATE_COMPARATOR = (100000000L);
     @SuppressWarnings("FieldCanBeLocal")
-    private final long EXTRA_LIFE_SPAWN_RATE_COMPARATOR = (4000000000L * 2L);
+    private final long EXTRA_LIFE_SPAWN_RATE_COMPARATOR = (300000000L * 2L);
 
     @SuppressWarnings("FieldCanBeLocal")
-    private final long OBSTACLE_SPAWN_RATE_COMPARATOR = (2000000000L * 2L);
+    private final long OBSTACLE_SPAWN_RATE_COMPARATOR = (500000000L * 2L);
 
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
