@@ -25,6 +25,7 @@ public class FirstLevelScreen implements Screen {
     Texture playerImage;
     Texture extraLiveImage;
     Texture obstacleImage;
+    Texture xRayCannonImage;
     Sound shootSound;
     //    Music rainMusic;
     OrthographicCamera camera;
@@ -33,35 +34,34 @@ public class FirstLevelScreen implements Screen {
     Array<Rectangle> enemies;
     Array<Rectangle> projectiles;
     Array<Rectangle> obstacles;
+    Array<Rectangle> cannons;
     long lastEnemySpawnTime;
     long lastExtraLifeSpawnTime;
     long lastProjectileSpawnTime;
     long lastObstacleSpawnTime;
     long lastRespawnTime;
+    long lastXRayCannonSpawnTime;
+    int xRayCannonsCount = 0;
     int scoreCount;
     int livesCount = 1;
-
     @SuppressWarnings("FieldCanBeLocal")
     private final int MOVE_SPEED = 130;
-
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
     private final long ENEMY_SPAWN_RATE_COMPARATOR = (100000000L);
     @SuppressWarnings("FieldCanBeLocal")
     private final long EXTRA_LIFE_SPAWN_RATE_COMPARATOR = (300000000L * 2L);
-
     @SuppressWarnings("FieldCanBeLocal")
     private final long OBSTACLE_SPAWN_RATE_COMPARATOR = (500000000L * 2L);
-
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
-    private final long PROJECTILE_RATE_COMPARATOR = 180000000; // og: 1000000000
-
+    private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 180000000; // og: 1000000000
+    // The more value -> the fewer enemies are being spawned
+    @SuppressWarnings("FieldCanBeLocal")
+    private final long XRAY_CANNON_SPAWN_RATE_COMPARATOR = 990000000; // og: 1000000000
     private ExecutionState executionState;
-
     @SuppressWarnings("FieldCanBeLocal")
     private final int TOP_BAR_OFFSET = (SCREEN_HEIGHT - 64 - 16);
-
     private int randomLUTCounter = 0;
     private final int[] randomLUT = {
             2, 13, 16, 17, 20, 22, 31, 34, 41, 43, 45, 52, 55, 56, 58, 64, 68, 70, 71, 73, 74, 78, 80, 81, 89, 95, 99,
@@ -84,7 +84,7 @@ public class FirstLevelScreen implements Screen {
         playerImage = new Texture(Gdx.files.internal("ship.png"));
         extraLiveImage = new Texture(Gdx.files.internal("extra_life.png"));
         obstacleImage = new Texture(Gdx.files.internal("obstacle.png"));
-
+        xRayCannonImage = new Texture(Gdx.files.internal("xray_cannon.png"));
         // load the drop sound effect and the rain background "music"
         shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
     }
@@ -116,6 +116,19 @@ public class FirstLevelScreen implements Screen {
         lastObstacleSpawnTime = TimeUtils.nanoTime();
     }
 
+    private void spawnXRayCannon() {
+        Rectangle cannon = new Rectangle();
+        cannon.x = SCREEN_WIDTH;
+        if (obstacles.size > 0) {
+            cannon.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
+        } else {
+            cannon.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
+        }
+        cannon.width = 64;
+        cannon.height = 64;
+        cannons.add(cannon);
+        lastXRayCannonSpawnTime = TimeUtils.nanoTime();
+    }
 
     private void spawnEnemy() {
         Rectangle enemy = new Rectangle();
@@ -173,7 +186,9 @@ public class FirstLevelScreen implements Screen {
 
         // extra life business
         spawnExtraLifeWhenApplicable();
-//        detectCollisionForExtraLife();
+
+        // powerful pickups yo
+        spawnXRayCannonWhenApplicable();
 
         // bullets and enemies go here
         detectCollision();
@@ -185,6 +200,14 @@ public class FirstLevelScreen implements Screen {
                 (OBSTACLE_SPAWN_RATE_COMPARATOR * getNextRandomInteger())
         ) {
             spawnObstacle();
+        }
+    }
+
+    private void spawnXRayCannonWhenApplicable() {
+        if (TimeUtils.nanoTime() - lastXRayCannonSpawnTime
+                > XRAY_CANNON_SPAWN_RATE_COMPARATOR * getNextRandomInteger()
+        ) {
+            spawnXRayCannon();
         }
     }
 
@@ -240,7 +263,7 @@ public class FirstLevelScreen implements Screen {
 
         // shoot a missile
         if (Gdx.input.isKeyPressed(Keys.SPACE)
-                && TimeUtils.nanoTime() - lastProjectileSpawnTime > PROJECTILE_RATE_COMPARATOR
+                && TimeUtils.nanoTime() - lastProjectileSpawnTime > PROJECTILE_SPAWN_RATE_COMPARATOR
         ) {
             shootSound.play();
             spawnProjectile();
@@ -392,6 +415,8 @@ public class FirstLevelScreen implements Screen {
         for (Rectangle obstacle : obstacles) {
             obstacle.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
 
+            if (obstacle.x + 64 < 0) obstacles.removeIndex(obstacles.indexOf(obstacle, false));
+
             if (obstacle.overlaps(player)) {
                 lastRespawnTime = TimeUtils.nanoTime();
                 // TODO: remember what I meant by next line xD
@@ -464,6 +489,19 @@ public class FirstLevelScreen implements Screen {
                 scoreCount += 40;
 
                 iterExtraLives.remove();
+            }
+        }
+
+        Iterator<Rectangle> iterXRayCannons = cannons.iterator();
+        while (iterXRayCannons.hasNext()) {
+            Rectangle cannon = iterXRayCannons.next();
+            cannon.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
+
+            if (cannon.x + 64 < 0) iterXRayCannons.remove();
+
+            if (cannon.overlaps(player)) {
+                xRayCannonsCount++;
+                iterXRayCannons.remove();
             }
         }
     }
@@ -547,5 +585,6 @@ public class FirstLevelScreen implements Screen {
         shootSound.dispose();
         extraLiveImage.dispose();
         obstacleImage.dispose();
+        xRayCannonImage.dispose();
     }
 }
