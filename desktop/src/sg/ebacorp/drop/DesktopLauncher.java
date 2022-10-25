@@ -8,7 +8,7 @@ import sg.ebacorp.spaceimpact.RuntimeConfig;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
-    private final static boolean IS_DEBUG = true;
+    private final static boolean IS_DEBUG = false;
     private final static boolean USE_VSYNC = true;
 
     public static void main(String[] arg) {

@@ -79,7 +79,7 @@ public class FirstLevelScreen implements Screen {
 
     private void initAssets() {
         // load the images for the droplet and the bucket, 64x64 pixels each
-        enemyImage = new Texture(Gdx.files.internal("enemy.png"));
+        enemyImage = new Texture(Gdx.files.internal("enemy_ship.png"));
         projectileImage = new Texture(Gdx.files.internal("laser_small.png"));
         playerImage = new Texture(Gdx.files.internal("ship.png"));
         extraLiveImage = new Texture(Gdx.files.internal("extra_life.png"));
@@ -140,7 +140,7 @@ public class FirstLevelScreen implements Screen {
         }
 
         enemy.x = SCREEN_WIDTH;
-        enemy.width = 64;
+        enemy.width = 96;
         enemy.height = 64;
         enemies.add(enemy);
         lastEnemySpawnTime = TimeUtils.nanoTime();
@@ -248,18 +248,37 @@ public class FirstLevelScreen implements Screen {
             executionState = ExecutionState.PAUSED;
         }
 
-        if (Gdx.input.isKeyPressed(Keys.UP)) {
-            player.y = player.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
+        boolean shouldUseLerp = true;
+
+        if (shouldUseLerp) {
+            float progress = 0.75f;
+            if (Gdx.input.isKeyPressed(Keys.UP)) {
+                player.y = MathUtils.lerp(player.y, player.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
+            }
+            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+                player.y = MathUtils.lerp(player.y, player.y - (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
+            }
+            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+                player.x = MathUtils.lerp(player.x, player.x + (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
+            }
+            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+                player.x = MathUtils.lerp(player.x, player.x - (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
+            }
+        } else {
+            if (Gdx.input.isKeyPressed(Keys.UP)) {
+                player.y = player.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            }
+            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+                player.y = player.y - (MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            }
+            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+                player.x = player.x + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            }
+            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+                player.x = player.x - (MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            }
         }
-        if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-            player.y = player.y - (MOVE_SPEED * Gdx.graphics.getDeltaTime());
-        }
-        if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            player.x = player.x + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
-        }
-        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-            player.x = player.x - (MOVE_SPEED * Gdx.graphics.getDeltaTime());
-        }
+
 
         // shoot a missile
         if (Gdx.input.isKeyPressed(Keys.SPACE)
@@ -556,13 +575,12 @@ public class FirstLevelScreen implements Screen {
         player.width = 91;
         player.height = 64;
 
-        // Extra live pickup part...
+        // Init arrays
         extraLives = new Array<>();
         enemies = new Array<>();
         obstacles = new Array<>();
-
-        // setup projectile
         projectiles = new Array<>();
+        cannons = new Array<>();
 
         // INFO: we don't reset other timers here, cause e.g. enemy timer is being reset inside `spawnEnemy()`
         lastProjectileSpawnTime = TimeUtils.nanoTime();
