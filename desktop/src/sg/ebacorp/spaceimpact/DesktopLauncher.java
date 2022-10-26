@@ -1,4 +1,4 @@
-package sg.ebacorp.drop;
+package sg.ebacorp.spaceimpact;
 
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
