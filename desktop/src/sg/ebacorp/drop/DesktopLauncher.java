@@ -8,8 +8,8 @@ import sg.ebacorp.spaceimpact.RuntimeConfig;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
-    private final static boolean IS_DEBUG = false;
-    private final static boolean USE_VSYNC = true;
+    private final static boolean IS_DEBUG = RuntimeConfig.getInstance().isDebug;
+    private final static boolean USE_VSYNC = RuntimeConfig.getInstance().useVsync;
 
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();

@@ -24,6 +24,7 @@ public class FirstLevelScreen implements Screen {
     Texture projectileImage;
     Texture playerImage;
     Texture extraLiveImage;
+    Texture extraLiveImageUI;
     Texture obstacleImage;
     Texture xRayCannonImage;
     Sound shootSound;
@@ -68,6 +69,7 @@ public class FirstLevelScreen implements Screen {
             101, 103, 106, 111, 116, 118, 133, 141, 143, 148, 150, 158, 167, 171, 177, 178, 182, 185, 188, 192, 196,
             200, 202, 205, 207, 214, 226, 232, 237, 238, 241, 244, 245, 249, 250, 251, 256
     };
+    private final boolean IS_DEBUG = RuntimeConfig.getInstance().isDebug;
 
     public FirstLevelScreen(final DefaultGame gam) {
         this.game = gam;
@@ -82,14 +84,15 @@ public class FirstLevelScreen implements Screen {
         enemyImage = new Texture(Gdx.files.internal("enemy_ship.png"));
         projectileImage = new Texture(Gdx.files.internal("laser_small.png"));
         playerImage = new Texture(Gdx.files.internal("ship.png"));
-        extraLiveImage = new Texture(Gdx.files.internal("extra_life.png"));
+        extraLiveImageUI = new Texture(Gdx.files.internal("extra_life.png"));
+        extraLiveImage = new Texture(Gdx.files.internal("heal.png"));
         obstacleImage = new Texture(Gdx.files.internal("obstacle.png"));
         xRayCannonImage = new Texture(Gdx.files.internal("xray_cannon.png"));
         // load the drop sound effect and the rain background "music"
         shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
     }
 
-    private void spawnExtraLive() {
+    private void spawnExtraLife() {
         Rectangle extraLive = new Rectangle();
 
         if (obstacles.size > 0) {
@@ -98,7 +101,7 @@ public class FirstLevelScreen implements Screen {
             extraLive.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
         }
 
-        extraLive.x = SCREEN_WIDTH - 64;
+        extraLive.x = SCREEN_WIDTH;
         extraLive.width = 64;
         extraLive.height = 64;
         // we add -> we clean on pickup, we repopulate
@@ -228,7 +231,7 @@ public class FirstLevelScreen implements Screen {
 
     private void spawnExtraLifeWhenApplicable() {
         if (TimeUtils.nanoTime() - lastExtraLifeSpawnTime > EXTRA_LIFE_SPAWN_RATE_COMPARATOR * getNextRandomInteger()) {
-            spawnExtraLive();
+            spawnExtraLife();
         }
     }
 
@@ -241,18 +244,16 @@ public class FirstLevelScreen implements Screen {
         if (player.x < 0 + 16) player.x = 0 + 16;
         if (player.x > SCREEN_WIDTH - 91 - 16) player.x = SCREEN_WIDTH - 91 - 16;
     }
-
     private void processInput() {
         if (Gdx.input.isKeyPressed(Keys.NUM_9)) {
             livesCount = 0;
             executionState = ExecutionState.PAUSED;
         }
 
-        boolean shouldUseLerp = true;
-
-        if (shouldUseLerp) {
-            float progress = 0.75f;
+        if (IS_DEBUG) {
+            float progress = 1.0f;
             if (Gdx.input.isKeyPressed(Keys.UP)) {
+                //
                 player.y = MathUtils.lerp(player.y, player.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
             }
             if (Gdx.input.isKeyPressed(Keys.DOWN)) {
@@ -353,34 +354,34 @@ public class FirstLevelScreen implements Screen {
     private void drawExtraLives() {
         if (livesCount == 2) {
             game.batch.draw(
-                    extraLiveImage,
+                    extraLiveImageUI,
                     16,
                     TOP_BAR_OFFSET
             );
         } else if (livesCount == 3) {
             game.batch.draw(
-                    extraLiveImage,
+                    extraLiveImageUI,
                     16,
                     TOP_BAR_OFFSET
             );
             game.batch.draw(
-                    extraLiveImage,
+                    extraLiveImageUI,
                     16 + 8 + 64,
                     TOP_BAR_OFFSET
             );
         } else if (livesCount == 4) {
             game.batch.draw(
-                    extraLiveImage,
+                    extraLiveImageUI,
                     16,
                     TOP_BAR_OFFSET
             );
             game.batch.draw(
-                    extraLiveImage,
+                    extraLiveImageUI,
                     16 + 8 + 64,
                     TOP_BAR_OFFSET
             );
             game.batch.draw(
-                    extraLiveImage,
+                    extraLiveImageUI,
                     16 + 8 + 64 + 8 + 64,
                     TOP_BAR_OFFSET
             );
@@ -602,6 +603,7 @@ public class FirstLevelScreen implements Screen {
         playerImage.dispose();
         shootSound.dispose();
         extraLiveImage.dispose();
+        extraLiveImageUI.dispose();
         obstacleImage.dispose();
         xRayCannonImage.dispose();
     }
