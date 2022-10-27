@@ -47,6 +47,7 @@ public class FirstLevelScreen implements Screen {
     int livesCount = 1;
     @SuppressWarnings("FieldCanBeLocal")
     private final int MOVE_SPEED = 130;
+    private final int PLAYER_MOVE_SPEED = 130;
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
     private final long ENEMY_SPAWN_RATE_COMPARATOR = (100000000L);
@@ -244,42 +245,26 @@ public class FirstLevelScreen implements Screen {
         if (player.x < 0 + 16) player.x = 0 + 16;
         if (player.x > SCREEN_WIDTH - 91 - 16) player.x = SCREEN_WIDTH - 91 - 16;
     }
+
     private void processInput() {
         if (Gdx.input.isKeyPressed(Keys.NUM_9)) {
             livesCount = 0;
             executionState = ExecutionState.PAUSED;
         }
 
-        if (IS_DEBUG) {
-            float progress = 1.0f;
-            if (Gdx.input.isKeyPressed(Keys.UP)) {
-                //
-                player.y = MathUtils.lerp(player.y, player.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
-            }
-            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-                player.y = MathUtils.lerp(player.y, player.y - (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
-            }
-            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-                player.x = MathUtils.lerp(player.x, player.x + (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
-            }
-            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-                player.x = MathUtils.lerp(player.x, player.x - (MOVE_SPEED * Gdx.graphics.getDeltaTime()), progress);
-            }
-        } else {
-            if (Gdx.input.isKeyPressed(Keys.UP)) {
-                player.y = player.y + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
-            }
-            if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-                player.y = player.y - (MOVE_SPEED * Gdx.graphics.getDeltaTime());
-            }
-            if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-                player.x = player.x + (MOVE_SPEED * Gdx.graphics.getDeltaTime());
-            }
-            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-                player.x = player.x - (MOVE_SPEED * Gdx.graphics.getDeltaTime());
-            }
+        // TODO: update `PLAYER_MOVE_SPEED` accordingly with lerp function
+        if (Gdx.input.isKeyPressed(Keys.UP)) {
+            player.y = player.y + (PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
         }
-
+        if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+            player.y = player.y - (PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
+        }
+        if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            player.x = player.x + (PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
+        }
+        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+            player.x = player.x - (PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
+        }
 
         // shoot a missile
         if (Gdx.input.isKeyPressed(Keys.SPACE)
@@ -301,7 +286,7 @@ public class FirstLevelScreen implements Screen {
         // arguments to clear are the red, green
         // blue and alpha component in the range [0,1]
         // of the color to be used to clear the screen.
-        ScreenUtils.clear(0.549f, 0.730f, 0.504f, 1);
+        ScreenUtils.clear(0.698f, 0.741f, 0.31f, 1);
 
         // tell the camera to update its matrices.
         camera.update();

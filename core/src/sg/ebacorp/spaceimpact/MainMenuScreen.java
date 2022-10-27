@@ -31,9 +31,20 @@ public class MainMenuScreen implements Screen {
     @Override
     public void render(float delta) {
         // Exit first, anything else later xD
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
-
-        ScreenUtils.clear(0.549f, 0.730f, 0.504f, 1);
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            Gdx.app.exit();
+            ScreenUtils.clear(
+                    RuntimeConfig.getInstance().backgroundRGB[0],
+                    RuntimeConfig.getInstance().backgroundRGB[1],
+                    RuntimeConfig.getInstance().backgroundRGB[2],
+                    1);
+        } else {
+            ScreenUtils.clear(
+                    RuntimeConfig.getInstance().backgroundRGB[0],
+                    RuntimeConfig.getInstance().backgroundRGB[1],
+                    RuntimeConfig.getInstance().backgroundRGB[2],
+                    1);
+        }
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
