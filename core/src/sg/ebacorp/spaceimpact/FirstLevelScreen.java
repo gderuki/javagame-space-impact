@@ -98,7 +98,7 @@ public class FirstLevelScreen implements Screen {
         randomPickupImage = new Texture(Gdx.files.internal("heal.png"));
         obstacleImage = new Texture(Gdx.files.internal("obstacle.png"));
         xRayImage = new Texture(Gdx.files.internal("icon_luch.png"));
-        shockWaveImage = new Texture(Gdx.files.internal("icon_bomb.png"));
+        shockWaveImage = new Texture(Gdx.files.internal("icon_luch.png"));
         // load the drop sound effect and the rain background "music"
         shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
     }
@@ -402,7 +402,7 @@ public class FirstLevelScreen implements Screen {
                 );
             }
         } else if (lastPickedUpItemType == 2) {
-            if (xRaysCount > 0) {
+            if (shockWaveCount > 0) {
                 game.batch.draw(
                         shockWaveImage, // 64x64
                         16 + 64 + 64 + 64 + 64 + 64,
