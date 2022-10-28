@@ -23,28 +23,37 @@ public class FirstLevelScreen implements Screen {
     Texture enemyImage;
     Texture projectileImage;
     Texture playerImage;
-    Texture extraLiveImage;
+    Texture randomPickupImage;
     Texture extraLiveImageUI;
     Texture obstacleImage;
-    Texture xRayCannonImage;
+    Texture xRayImage;
+    Texture shockWaveImage;
     Sound shootSound;
     //    Music rainMusic;
     OrthographicCamera camera;
     Rectangle player;
-    Array<Rectangle> extraLives;
+    Array<Rectangle> randomPickups;
     Array<Rectangle> enemies;
     Array<Rectangle> projectiles;
     Array<Rectangle> obstacles;
-    Array<Rectangle> cannons;
     long lastEnemySpawnTime;
-    long lastExtraLifeSpawnTime;
+//    long lastExtraLifeSpawnTime;
     long lastProjectileSpawnTime;
     long lastObstacleSpawnTime;
     long lastRespawnTime;
-    long lastXRayCannonSpawnTime;
-    int xRayCannonsCount = 0;
+    long lastRandomPickupSpawnTime;
+    int xRaysCount = 0;
+    int shockWaveCount = 0;
     int scoreCount;
     int livesCount = 1;
+
+    /*
+     0 - extra health
+     1 - xRay
+     2 - shockWave
+     */
+    int lastPickedUpItemType = 0;
+
     @SuppressWarnings("FieldCanBeLocal")
     private final int MOVE_SPEED = 130;
     private final int PLAYER_MOVE_SPEED = 130;
@@ -52,7 +61,7 @@ public class FirstLevelScreen implements Screen {
     @SuppressWarnings("FieldCanBeLocal")
     private final long ENEMY_SPAWN_RATE_COMPARATOR = (100000000L);
     @SuppressWarnings("FieldCanBeLocal")
-    private final long EXTRA_LIFE_SPAWN_RATE_COMPARATOR = (300000000L * 2L);
+    private final long RANDOM_PICKUP_SPAWN_RATE_COMPARATOR = (300000000L * 2L);
     @SuppressWarnings("FieldCanBeLocal")
     private final long OBSTACLE_SPAWN_RATE_COMPARATOR = (500000000L * 2L);
     // The more value -> the fewer enemies are being spawned
@@ -66,9 +75,9 @@ public class FirstLevelScreen implements Screen {
     private final int TOP_BAR_OFFSET = (SCREEN_HEIGHT - 64 - 16);
     private int randomLUTCounter = 0;
     private final int[] randomLUT = {
-            2, 13, 16, 17, 20, 22, 31, 34, 41, 43, 45, 52, 55, 56, 58, 64, 68, 70, 71, 73, 74, 78, 80, 81, 89, 95, 99,
-            101, 103, 106, 111, 116, 118, 133, 141, 143, 148, 150, 158, 167, 171, 177, 178, 182, 185, 188, 192, 196,
-            200, 202, 205, 207, 214, 226, 232, 237, 238, 241, 244, 245, 249, 250, 251, 256
+            18, 206, 50, 207, 167, 161, 13, 94, 81, 231, 256, 217, 71, 38, 183, 40, 220, 203, 249, 255, 237, 151, 170,
+            181, 133, 113, 103, 253, 16, 101, 158, 27, 146, 123, 204, 147, 229, 117, 97, 85, 246, 48, 216, 9, 99, 148,
+            108, 6, 177, 248, 86, 96, 14, 106, 199, 115, 184, 157, 64, 89, 5, 137, 74, 143, 21, 196
     };
     private final boolean IS_DEBUG = RuntimeConfig.getInstance().isDebug;
 
@@ -86,28 +95,31 @@ public class FirstLevelScreen implements Screen {
         projectileImage = new Texture(Gdx.files.internal("laser_small.png"));
         playerImage = new Texture(Gdx.files.internal("ship.png"));
         extraLiveImageUI = new Texture(Gdx.files.internal("extra_life.png"));
-        extraLiveImage = new Texture(Gdx.files.internal("heal.png"));
+        randomPickupImage = new Texture(Gdx.files.internal("heal.png"));
         obstacleImage = new Texture(Gdx.files.internal("obstacle.png"));
-        xRayCannonImage = new Texture(Gdx.files.internal("xray_cannon.png"));
+        xRayImage = new Texture(Gdx.files.internal("icon_luch.png"));
+        shockWaveImage = new Texture(Gdx.files.internal("icon_bomb.png"));
         // load the drop sound effect and the rain background "music"
         shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
     }
 
-    private void spawnExtraLife() {
-        Rectangle extraLive = new Rectangle();
+    private void spawnPowerUp() {
+        Rectangle item = new Rectangle();
 
         if (obstacles.size > 0) {
-            extraLive.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
+            item.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
         } else {
-            extraLive.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
+            item.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
         }
 
-        extraLive.x = SCREEN_WIDTH;
-        extraLive.width = 64;
-        extraLive.height = 64;
+        item.x = SCREEN_WIDTH;
+        item.width = 64;
+        item.height = 64;
         // we add -> we clean on pickup, we repopulate
-        extraLives.add(extraLive);
-        lastExtraLifeSpawnTime = TimeUtils.nanoTime();
+        int randomInt = getNextRandomInteger();
+
+        randomPickups.add(item);
+        lastRandomPickupSpawnTime = TimeUtils.nanoTime();
     }
 
     private void spawnObstacle() {
@@ -121,17 +133,17 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void spawnXRayCannon() {
-        Rectangle cannon = new Rectangle();
-        cannon.x = SCREEN_WIDTH;
+        Rectangle item = new Rectangle();
+        item.x = SCREEN_WIDTH;
         if (obstacles.size > 0) {
-            cannon.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
+            item.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
         } else {
-            cannon.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
+            item.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
         }
-        cannon.width = 64;
-        cannon.height = 64;
-        cannons.add(cannon);
-        lastXRayCannonSpawnTime = TimeUtils.nanoTime();
+        item.width = 64;
+        item.height = 64;
+        randomPickups.add(item);
+        lastRandomPickupSpawnTime = TimeUtils.nanoTime();
     }
 
     private void spawnEnemy() {
@@ -189,10 +201,10 @@ public class FirstLevelScreen implements Screen {
         spawnObstacleWhenApplicable();
 
         // extra life business
-        spawnExtraLifeWhenApplicable();
+        spawnRandomPickupWhenApplicable();
 
         // powerful pickups yo
-        spawnXRayCannonWhenApplicable();
+//        spawnXRayCannonWhenApplicable();
 
         // bullets and enemies go here
         detectCollision();
@@ -208,7 +220,7 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void spawnXRayCannonWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastXRayCannonSpawnTime
+        if (TimeUtils.nanoTime() - lastRandomPickupSpawnTime
                 > XRAY_CANNON_SPAWN_RATE_COMPARATOR * getNextRandomInteger()
         ) {
             spawnXRayCannon();
@@ -230,9 +242,9 @@ public class FirstLevelScreen implements Screen {
             spawnEnemy();
     }
 
-    private void spawnExtraLifeWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastExtraLifeSpawnTime > EXTRA_LIFE_SPAWN_RATE_COMPARATOR * getNextRandomInteger()) {
-            spawnExtraLife();
+    private void spawnRandomPickupWhenApplicable() {
+        if (TimeUtils.nanoTime() - lastRandomPickupSpawnTime > RANDOM_PICKUP_SPAWN_RATE_COMPARATOR * getNextRandomInteger()) {
+            spawnPowerUp();
         }
     }
 
@@ -278,6 +290,7 @@ public class FirstLevelScreen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.NUM_0)) {
             livesCount = 4;
             scoreCount += 40;
+            xRaysCount = 2;
         }
     }
 
@@ -303,8 +316,8 @@ public class FirstLevelScreen implements Screen {
         if (livesCount >= 1 && !isPaused) {
 //            game.font.getData().setScale(1.5f);
             // draw live icons here instead of a count...
-            drawExtraLives();
-            drawScoreUI();
+            drawUI();
+//            drawScoreUI();
         } else {
             game.font.getData().setScale(0.94f);
             game.font.draw(game.batch, "GAME OVER!", 40, 128);
@@ -321,8 +334,8 @@ public class FirstLevelScreen implements Screen {
             game.batch.draw(enemyImage, enemy.x, enemy.y);
         }
 
-        for (Rectangle life : extraLives) {
-            game.batch.draw(extraLiveImage, life.x, life.y);
+        for (Rectangle randomItem : randomPickups) {
+            game.batch.draw(randomPickupImage, randomItem.x, randomItem.y);
         }
 
         for (Rectangle projectile : projectiles) {
@@ -336,7 +349,8 @@ public class FirstLevelScreen implements Screen {
         game.batch.end();
     }
 
-    private void drawExtraLives() {
+    private void drawUI() {
+        // extra lives
         if (livesCount == 2) {
             game.batch.draw(
                     extraLiveImageUI,
@@ -371,15 +385,50 @@ public class FirstLevelScreen implements Screen {
                     TOP_BAR_OFFSET
             );
         }
-    }
 
-    private void drawScoreUI() {
+        // draw power-ups/pick-ups here
+        if (lastPickedUpItemType == 1) {
+            if (xRaysCount > 0) {
+                game.batch.draw(
+                        xRayImage, // 64x64
+                        16 + 64 + 64 + 64 + 64 + 64,
+                        TOP_BAR_OFFSET
+                );
+                game.font.draw(
+                        game.batch,
+                        String.valueOf(xRaysCount),
+                        16 + 64 + 64 + 64 + 64 + 64 + 64,
+                        TOP_BAR_OFFSET + 62 // consider having 60 here...
+                );
+            }
+        } else if (lastPickedUpItemType == 2) {
+            if (xRaysCount > 0) {
+                game.batch.draw(
+                        shockWaveImage, // 64x64
+                        16 + 64 + 64 + 64 + 64 + 64,
+                        TOP_BAR_OFFSET
+                );
+                game.font.draw(
+                        game.batch,
+                        String.valueOf(shockWaveCount),
+                        16 + 64 + 64 + 64 + 64 + 64 + 64,
+                        TOP_BAR_OFFSET + 62 // consider having 60 here...
+                );
+            }
+        }
+
+
+        // score
         game.font.draw(
                 game.batch,
                 formatScore(),
                 SCREEN_WIDTH - 256 - 48,
                 TOP_BAR_OFFSET + 62 // consider having 60 here...
         );
+    }
+
+    private void drawScoreUI() {
+
     }
 
     private String formatScore() {
@@ -479,36 +528,48 @@ public class FirstLevelScreen implements Screen {
         }
 
         // for now, I'll leave it here
-        Iterator<Rectangle> iterExtraLives = extraLives.iterator();
-        while (iterExtraLives.hasNext()) {
-            Rectangle life = iterExtraLives.next();
-            life.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
+        Iterator<Rectangle> iterRandomPickups = randomPickups.iterator();
+        while (iterRandomPickups.hasNext()) {
+            Rectangle item = iterRandomPickups.next();
+            item.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
 
-            if (life.x + 64 < 0) iterExtraLives.remove();
+            if (item.x + 64 < 0) iterRandomPickups.remove();
 
-            if (life.overlaps(player)) {
-                if (livesCount <= 3) {
-                    livesCount++;
+            if (item.overlaps(player)) {
+                // todo update this to be random
+                int randomInt = getNextRandomInteger();
+                if (randomInt < 100) {
+                    if (livesCount <= 3) {
+                        livesCount++;
+                    }
+                    lastPickedUpItemType = 0;
+                    scoreCount += 40;
+                } else if (randomInt < 200) {
+                    xRaysCount++;
+                    lastPickedUpItemType = 1;
+                    scoreCount += 80;
+                } else {
+                    shockWaveCount++;
+                    lastPickedUpItemType = 2;
+                    scoreCount += 120;
                 }
 
-                scoreCount += 40;
-
-                iterExtraLives.remove();
+                iterRandomPickups.remove();
             }
         }
 
-        Iterator<Rectangle> iterXRayCannons = cannons.iterator();
-        while (iterXRayCannons.hasNext()) {
-            Rectangle cannon = iterXRayCannons.next();
-            cannon.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
-
-            if (cannon.x + 64 < 0) iterXRayCannons.remove();
-
-            if (cannon.overlaps(player)) {
-                xRayCannonsCount++;
-                iterXRayCannons.remove();
-            }
-        }
+//        Iterator<Rectangle> iterXRayCannons = xRays.iterator();
+//        while (iterXRayCannons.hasNext()) {
+//            Rectangle cannon = iterXRayCannons.next();
+//            cannon.x -= MOVE_SPEED * Gdx.graphics.getDeltaTime();
+//
+//            if (cannon.x + 64 < 0) iterXRayCannons.remove();
+//
+//            if (cannon.overlaps(player)) {
+//                xRaysCount++;
+//                iterXRayCannons.remove();
+//            }
+//        }
     }
 
     @Override
@@ -562,15 +623,15 @@ public class FirstLevelScreen implements Screen {
         player.height = 64;
 
         // Init arrays
-        extraLives = new Array<>();
+        randomPickups = new Array<>();
         enemies = new Array<>();
         obstacles = new Array<>();
         projectiles = new Array<>();
-        cannons = new Array<>();
+//        xRays = new Array<>();
 
         // INFO: we don't reset other timers here, cause e.g. enemy timer is being reset inside `spawnEnemy()`
         lastProjectileSpawnTime = TimeUtils.nanoTime();
-        lastExtraLifeSpawnTime = TimeUtils.nanoTime();
+//        lastExtraLifeSpawnTime = TimeUtils.nanoTime();
         lastObstacleSpawnTime = TimeUtils.nanoTime(); // natural delay
 
         // init
@@ -587,9 +648,10 @@ public class FirstLevelScreen implements Screen {
         projectileImage.dispose();
         playerImage.dispose();
         shootSound.dispose();
-        extraLiveImage.dispose();
+        randomPickupImage.dispose();
         extraLiveImageUI.dispose();
         obstacleImage.dispose();
-        xRayCannonImage.dispose();
+        xRayImage.dispose();
+        shockWaveImage.dispose();
     }
 }
