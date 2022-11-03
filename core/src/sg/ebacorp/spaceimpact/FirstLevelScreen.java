@@ -56,17 +56,17 @@ public class FirstLevelScreen implements Screen {
 
     @SuppressWarnings("FieldCanBeLocal")
     private final int MOVE_SPEED = 130;
-    private final int PLAYER_MOVE_SPEED = 130;
+    private final int PLAYER_MOVE_SPEED = 140;
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
-    private final long ENEMY_SPAWN_RATE_COMPARATOR = 1000000000L;
+    private final long ENEMY_SPAWN_RATE_COMPARATOR = 1500000000L + 50000000L;
     @SuppressWarnings("FieldCanBeLocal")
-    private final long RANDOM_PICKUP_SPAWN_RATE_COMPARATOR = 1000000000L;
+    private final long RANDOM_PICKUP_SPAWN_RATE_COMPARATOR = 1000000000L + 500000000L;
     @SuppressWarnings("FieldCanBeLocal")
-    private final long OBSTACLE_SPAWN_RATE_COMPARATOR = 1000000000L;
+    private final long OBSTACLE_SPAWN_RATE_COMPARATOR = 1000000000L + 2500000000L;
     // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
-    private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 200000000; // og: 1000000000
+    private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 236000000; // og: 1000000000
     // The more value -> the fewer enemies are being spawned
     private ExecutionState executionState;
     @SuppressWarnings("FieldCanBeLocal")
@@ -135,10 +135,10 @@ public class FirstLevelScreen implements Screen {
         if (obstacles.size > 0) {
             enemy.y = MathUtils.random(128, TOP_BAR_OFFSET - 64 - 16);
         } else {
-            enemy.y = MathUtils.random(16, TOP_BAR_OFFSET - 64 - 16);
+            enemy.y = MathUtils.random(64, TOP_BAR_OFFSET - 64 - 16);
         }
 
-        enemy.x = SCREEN_WIDTH;
+        enemy.x = SCREEN_WIDTH + 64;
         enemy.width = 96;
         enemy.height = 64;
         enemies.add(enemy);
@@ -204,7 +204,9 @@ public class FirstLevelScreen implements Screen {
         if (randomLUTCounter == randomLUT.length) {
             randomLUTCounter = 0;
         }
-        return isDebug ? 2 : randomLUT[randomLUTCounter];
+
+        // TODO: see why multiplying it more than by two makes such big diff
+        return isDebug ? 2 : randomLUT[randomLUTCounter] * 2;
     }
 
 
@@ -361,13 +363,13 @@ public class FirstLevelScreen implements Screen {
         if (xRaysCount > 0) {
             game.batch.draw(
                     xRayImage, // 64x64
-                    16 + 64 + 64 + 64 + 64 + 64,
+                    8 + 32 + 64 + 64 + 64 + 64,
                     TOP_BAR_OFFSET
             );
             game.font.draw(
                     game.batch,
                     String.valueOf(xRaysCount),
-                    16 + 64 + 64 + 64 + 64 + 64 + 64,
+                    24 + 32 + 64 + 64 + 64 + 64 + 64,
                     TOP_BAR_OFFSET + 62 // consider having 60 here...
             );
         }
@@ -395,10 +397,6 @@ public class FirstLevelScreen implements Screen {
                 SCREEN_WIDTH - 256 - 48,
                 TOP_BAR_OFFSET + 62 // consider having 60 here...
         );
-    }
-
-    private void drawScoreUI() {
-
     }
 
     private String formatScore() {
@@ -606,9 +604,13 @@ public class FirstLevelScreen implements Screen {
 
         // INFO: we don't reset other timers here, cause e.g. enemy timer is being reset inside `spawnEnemy()`
         // natural delay
-        lastProjectileSpawnTime = TimeUtils.nanoTime();
-        lastRandomPickupSpawnTime = TimeUtils.nanoTime();
-        lastObstacleSpawnTime = TimeUtils.nanoTime();
+        long initialDelayTime = TimeUtils.nanoTime();
+        lastProjectileSpawnTime = initialDelayTime;
+        lastRandomPickupSpawnTime = initialDelayTime;
+        lastObstacleSpawnTime = initialDelayTime;
+
+        System.out.println(lastRandomPickupSpawnTime);
+        System.out.println(lastObstacleSpawnTime);
 
         // init
         spawnEnemy();
