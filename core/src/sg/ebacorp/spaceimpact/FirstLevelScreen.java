@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import sg.ebacorp.spaceimpact.utils.ExecutionState;
 
 
 public class FirstLevelScreen implements Screen {
@@ -56,8 +57,6 @@ public class FirstLevelScreen implements Screen {
 
     @SuppressWarnings("FieldCanBeLocal")
     private final int MOVE_SPEED = 130;
-    private final int PLAYER_MOVE_SPEED = 140;
-    // The more value -> the fewer enemies are being spawned
     @SuppressWarnings("FieldCanBeLocal")
     private final long ENEMY_SPAWN_RATE_COMPARATOR = 1500000000L + 50000000L;
     @SuppressWarnings("FieldCanBeLocal")
@@ -222,12 +221,12 @@ public class FirstLevelScreen implements Screen {
     }
 
     private void playerMovement() {
-        if (player.y < 0 + 16) player.y = 0 + 16;
+        if (player.y < 16) player.y = 16;
         if (player.y > TOP_BAR_OFFSET - 64 - 16) {
             player.y = TOP_BAR_OFFSET - 64 - 16;
         }
 
-        if (player.x < 0 + 16) player.x = 0 + 16;
+        if (player.x < 16) player.x = 16;
         if (player.x > SCREEN_WIDTH - 91 - 16) player.x = SCREEN_WIDTH - 91 - 16;
     }
 
@@ -237,7 +236,8 @@ public class FirstLevelScreen implements Screen {
             executionState = ExecutionState.PAUSED;
         }
 
-        // TODO: update `PLAYER_MOVE_SPEED` accordingly with lerp function
+        // The more value -> the fewer enemies are being spawned
+        int PLAYER_MOVE_SPEED = 140;
         if (Gdx.input.isKeyPressed(Keys.UP)) {
             player.y = player.y + (PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
         }

@@ -3,8 +3,7 @@ package sg.ebacorp.spaceimpact;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import sg.ebacorp.spaceimpact.DefaultGame;
-import sg.ebacorp.spaceimpact.RuntimeConfig;
+import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {

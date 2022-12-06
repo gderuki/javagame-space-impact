@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
+import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 
 public class MainMenuScreen implements Screen {
     final DefaultGame game;

@@ -1,4 +1,4 @@
-package sg.ebacorp.spaceimpact;
+package sg.ebacorp.spaceimpact.utils;
 
 public class RuntimeConfig {
     public final int defaultFPS;
