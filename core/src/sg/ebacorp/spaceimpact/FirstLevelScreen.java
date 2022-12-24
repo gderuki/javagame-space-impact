@@ -58,9 +58,9 @@ public class FirstLevelScreen implements Screen {
     @SuppressWarnings("FieldCanBeLocal")
     private final int MOVE_SPEED = 130;
     @SuppressWarnings("FieldCanBeLocal")
-    private final long ENEMY_SPAWN_RATE_COMPARATOR = 1500000000L + 50000000L;
+    private final long ENEMY_SPAWN_RATE_COMPARATOR = 1500000000L + 250000000L;
     @SuppressWarnings("FieldCanBeLocal")
-    private final long RANDOM_PICKUP_SPAWN_RATE_COMPARATOR = 1000000000L + 500000000L;
+    private final long RANDOM_PICKUP_SPAWN_RATE_COMPARATOR = 1500000000L + 250000000L;
     @SuppressWarnings("FieldCanBeLocal")
     private final long OBSTACLE_SPAWN_RATE_COMPARATOR = 1000000000L + 2500000000L;
     // The more value -> the fewer enemies are being spawned
@@ -78,6 +78,7 @@ public class FirstLevelScreen implements Screen {
             2, 6, 10, 5, 3, 4, 7, 9, 8,
             2, 7, 9, 8, 2, 6, 10, 5, 3
     };
+    private boolean isBossFight = false;
 
     public FirstLevelScreen(final DefaultGame gam) {
         this.game = gam;
@@ -177,13 +178,15 @@ public class FirstLevelScreen implements Screen {
         playerMovement();
 
         // enemy business
-        spawnEnemyWhenApplicable();
+        if (!isBossFight) {
+            spawnEnemyWhenApplicable();
 
-        // obstacles
-        spawnObstacleWhenApplicable();
+            // obstacles
+            spawnObstacleWhenApplicable();
 
-        // random pickups spawn
-        spawnRandomPickupWhenApplicable();
+            // random pickups spawn
+            spawnRandomPickupWhenApplicable();
+        }
 
         // bullets and enemies go here
         detectCollision();
@@ -204,18 +207,20 @@ public class FirstLevelScreen implements Screen {
             randomLUTCounter = 0;
         }
 
+
         // TODO: see why multiplying it more than by two makes such big diff
         return isDebug ? 2 : randomLUT[randomLUTCounter] * 2;
     }
 
 
     private void spawnEnemyWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastEnemySpawnTime > (ENEMY_SPAWN_RATE_COMPARATOR * getNextRandomInteger(true)))
+        // TODO: make me work daddy
+        if (TimeUtils.nanoTime() - lastEnemySpawnTime > (ENEMY_SPAWN_RATE_COMPARATOR - (ENEMY_SPAWN_RATE_COMPARATOR / MathUtils.random(32, 4096))))
             spawnEnemy();
     }
 
     private void spawnRandomPickupWhenApplicable() {
-        if (TimeUtils.nanoTime() - lastRandomPickupSpawnTime > RANDOM_PICKUP_SPAWN_RATE_COMPARATOR * getNextRandomInteger(false)) {
+        if (TimeUtils.nanoTime() - lastRandomPickupSpawnTime > (RANDOM_PICKUP_SPAWN_RATE_COMPARATOR - (RANDOM_PICKUP_SPAWN_RATE_COMPARATOR / MathUtils.random(1980, 4096)))) {
             spawnPowerUp();
         }
     }
@@ -237,6 +242,7 @@ public class FirstLevelScreen implements Screen {
         }
 
         // The more value -> the fewer enemies are being spawned
+        // TOFDO: Move `PLAYER_MOVE_SPEED` to header
         int PLAYER_MOVE_SPEED = 140;
         if (Gdx.input.isKeyPressed(Keys.UP)) {
             player.y = player.y + (PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
