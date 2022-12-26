@@ -6,11 +6,15 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Enemy {
 
-    private Texture image;
+    private static Texture image;
+
+    static {
+        image = new Texture(Gdx.files.internal("enemy_ship.png"));
+    }
+
     private Rectangle position;
 
     public Enemy(float x, float y) {
-        image = new Texture(Gdx.files.internal("enemy_ship.png"));
         position = new Rectangle(x, y, 96, 64);
     }
 

@@ -7,11 +7,15 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class RandomPickup {
 
-    private final Texture randomPickupImage;
+    private static Texture randomPickupImage;
+
+    static {
+        randomPickupImage = new Texture(Gdx.files.internal("heal.png"));
+    }
+
     private Rectangle position;
 
     public RandomPickup(float x, float y) {
-        this.randomPickupImage = new Texture(Gdx.files.internal("heal.png"));
         this.position = new Rectangle(x, y, 64, 64);
     }
 

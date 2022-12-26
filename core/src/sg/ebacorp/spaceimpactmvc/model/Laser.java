@@ -5,11 +5,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Laser {
-    private Texture image;
+
+    private static Texture image;
+
+    static {
+        image = new Texture(Gdx.files.internal("laser_small.png"));
+    }
+
     private Rectangle position;
 
     public Laser(float x, float y) {
-        image = new Texture(Gdx.files.internal("laser_small.png"));
         position = new Rectangle(x, y, 32, 16);
     }
 

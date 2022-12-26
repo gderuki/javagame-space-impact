@@ -5,14 +5,18 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
 public class SpaceShip {
-    private Texture image;
+    private static Texture image;
+
+    static {
+        image = new Texture(Gdx.files.internal("ship.png"));
+    }
+
     private Rectangle position;
     int lives;
     int score = 0;
     int xray = 0;
 
     public SpaceShip() {
-        image = new Texture(Gdx.files.internal("ship.png"));
         position = new Rectangle(10, 10, 91, 64);
         lives = 2;
     }
