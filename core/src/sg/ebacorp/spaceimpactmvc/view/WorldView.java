@@ -51,11 +51,20 @@ public class WorldView {
 
     public void render() {
         batch.begin();
-        renderPlayer();
-        renderEnemies();
-        renderLasers();
-        renderRandomItems();
-        renderUI();
+        if (world.getPlayer().getLives() > 0) {
+            renderPlayer();
+            renderEnemies();
+            renderLasers();
+            renderRandomItems();
+            renderUI();
+        } else {
+            font.getData().setScale(0.94f);
+            font.draw(batch, "GAME OVER!", 40, 128);
+            font.getData().setScale(0.35f);
+            font.draw(batch, "Press [SPACE] to restart", 40, 64);
+            font.draw(batch, "- or press [ESC] to quit", 40, 32);
+            font.getData().setScale(0.94f);
+        }
         batch.end();
     }
 

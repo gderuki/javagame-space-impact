@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.utils.ScreenUtils;
 import sg.ebacorp.spaceimpactmvc.controller.WorldController;
 import sg.ebacorp.spaceimpactmvc.model.World;
 import sg.ebacorp.spaceimpactmvc.view.WorldView;
@@ -25,9 +26,7 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
-
+        ScreenUtils.clear(0.698f, 0.741f, 0.31f, 1);
         worldController.update(delta);
         worldView.render();
     }

@@ -103,6 +103,7 @@ public class WorldController {
                 if (!world.getPlayer().alive()) {
                     world.pause();
                 }
+                iterator.remove();
             }
         }
     }
