@@ -53,11 +53,7 @@ public class WorldView {
     public void render() {
         batch.begin();
         if (world.getState() == ExecutionState.NONE) {
-            font.getData().setScale(0.94f);
-            font.draw(batch, "SPACE IMPACT", 40, 128);
-            font.getData().setScale(0.5f);
-            font.draw(batch, "Press [SPACE] to START", 40, 64);
-            font.getData().setScale(0.94f);
+            printWelcome();
         } else {
             if (world.getPlayer().getLives() > 0) {
                 renderPlayer();
@@ -66,15 +62,27 @@ public class WorldView {
                 renderRandomItems();
                 renderUI();
             } else {
-                font.getData().setScale(0.94f);
-                font.draw(batch, "GAME OVER!", 40, 128);
-                font.getData().setScale(0.35f);
-                font.draw(batch, "Press [SPACE] to restart", 40, 64);
-                font.draw(batch, "- or press [ESC] to quit", 40, 32);
-                font.getData().setScale(0.94f);
+                printGameOver();
             }
         }
         batch.end();
+    }
+
+    private void printWelcome() {
+        font.getData().setScale(0.94f);
+        font.draw(batch, "SPACE IMPACT", 40, 128);
+        font.getData().setScale(0.5f);
+        font.draw(batch, "Press [SPACE] to START", 40, 64);
+        font.getData().setScale(0.94f);
+    }
+
+    private void printGameOver() {
+        font.getData().setScale(0.94f);
+        font.draw(batch, "GAME OVER!", 40, 128);
+        font.getData().setScale(0.35f);
+        font.draw(batch, "Press [SPACE] to restart", 40, 64);
+        font.draw(batch, "- or press [ESC] to quit", 40, 32);
+        font.getData().setScale(0.94f);
     }
 
     private void renderRandomItems() {
