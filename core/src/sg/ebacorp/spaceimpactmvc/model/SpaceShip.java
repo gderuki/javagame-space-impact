@@ -9,6 +9,7 @@ public class SpaceShip {
     private Rectangle position;
     int lives;
     int score = 0;
+    int xray = 0;
 
     public SpaceShip() {
         image = new Texture(Gdx.files.internal("ship.png"));
@@ -56,7 +57,27 @@ public class SpaceShip {
         return lives > 0;
     }
 
+    public void liveUp() {
+        lives += 1;
+    }
+
     public void scoreUp() {
         score += 20;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public int getXray() {
+        return xray;
+    }
+
+    public void xrayUp() {
+        xray += 1;
     }
 }

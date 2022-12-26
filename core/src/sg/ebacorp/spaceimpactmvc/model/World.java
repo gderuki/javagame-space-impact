@@ -12,6 +12,7 @@ public class World {
     private SpaceShip spaceShip;
     private Set<Enemy> enemies;
     private Set<Laser> lasers;
+    private Set<RandomPickup> randomPickups;
 
     public World() {
         createWorld();
@@ -21,6 +22,7 @@ public class World {
         this.spaceShip = new SpaceShip();
         this.enemies = new HashSet<>();
         this.lasers = new HashSet<>();
+        this.randomPickups = new HashSet<>();
     }
 
     public SpaceShip getPlayer() {
@@ -40,6 +42,10 @@ public class World {
         return lasers;
     }
 
+    public Set<RandomPickup> getRandomPickups() {
+        return randomPickups;
+    }
+
     public void pause() {
         executionState = ExecutionState.PAUSED;
     }
@@ -47,5 +53,10 @@ public class World {
     public void spawnLaser(float x, float y) {
         Laser laser = new Laser(x, y);
         lasers.add(laser);
+    }
+
+    public void spawnRandomItem(float x, float y) {
+        RandomPickup randomPickup = new RandomPickup(x, y);
+        randomPickups.add(randomPickup);
     }
 }

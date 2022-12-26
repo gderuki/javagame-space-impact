@@ -5,12 +5,11 @@ import java.util.Iterator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
-import sg.ebacorp.spaceimpact.utils.ExecutionState;
 import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 import sg.ebacorp.spaceimpactmvc.model.Enemy;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
+import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
 import sg.ebacorp.spaceimpactmvc.model.World;
 
 public class WorldController {
@@ -19,6 +18,7 @@ public class WorldController {
     private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 236000000;
     World world;
     long lastEnemySpawnTime = 0;
+    long lastRandomItemSpawnTime = 0;
     long lastProjectileSpawnTime = 0;
 
     public WorldController(World world) {
@@ -28,8 +28,49 @@ public class WorldController {
     public void update(float delta) {
         processInputs();
         updateEnemyPosition();
+        updateRandomItemPosition();
         spawnEnemies();
+        spawnRandomItems();
         updateLaserPosition();
+    }
+
+    private void updateRandomItemPosition() {
+        Iterator<RandomPickup> iterator = world.getRandomPickups().iterator();
+        while (iterator.hasNext()) {
+            RandomPickup randomPickup = iterator.next();
+            randomPickup.moveLeft(MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            if (randomPickup.getPosition().x + 64 < 0) {
+                iterator.remove();
+            }
+            if (randomPickup.getPosition().overlaps(world.getPlayer().getPosition())) {
+                float mathRandom = MathUtils.random();
+                if (mathRandom < .4) {
+                    if (world.getPlayer().getLives() <= 3) {
+                        world.getPlayer().liveUp();
+                    }
+                    //FIXME figure out what to do with lastPickedUpItemType
+                    //lastPickedUpItemType = 0;
+                    world.getPlayer().scoreUp();
+                    world.getPlayer().scoreUp();
+                } else if (mathRandom > .4) {
+                    if (world.getPlayer().getXray() < 3) {
+                        world.getPlayer().xrayUp();
+                    }
+                    //FIXME figure out what to do with lastPickedUpItemType
+                    //lastPickedUpItemType = 1;
+                    world.getPlayer().scoreUp();
+                    world.getPlayer().scoreUp();
+                    world.getPlayer().scoreUp();
+                } else {
+                    //FIXME figure out what to do with sockwaves
+//                    // shock wave will spawn only if
+//                    shockWaveCount++;
+//                    lastPickedUpItemType = 2;
+//                    scoreCount += 120;
+                }
+                iterator.remove();
+            }
+        }
     }
 
     private void updateLaserPosition() {
@@ -63,6 +104,16 @@ public class WorldController {
                     world.pause();
                 }
             }
+        }
+    }
+
+    private void spawnRandomItems() {
+        if (TimeUtils.millis() - lastRandomItemSpawnTime > MathUtils.random(1000, 10000)) {
+            int topBarOffset = (RuntimeConfig.getInstance().screenHeight - 64 - 16);
+            float y = MathUtils.random(128, topBarOffset - 64 - 16);
+            float x = RuntimeConfig.getInstance().screenWidth;
+            lastRandomItemSpawnTime = TimeUtils.millis();
+            world.spawnRandomItem(x, y);
         }
     }
 
