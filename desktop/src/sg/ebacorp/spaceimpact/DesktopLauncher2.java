@@ -21,7 +21,7 @@ public class DesktopLauncher2 {
         // we can't have simultaneously vsync and fps cap.
         // while fps cap isn't so accurate I'd say fuck it, I must continue with fps cap instead, don't want dem 60fps
         //		config.useVsync(true);
-        config.setTitle("Space Impact");
+        config.setTitle("Space Impact MVC");
 
         // INFO: could be used fps cap OR vsync, using both will not work,
         //  guess, the priority will go to vsync rather than to fps cap.
