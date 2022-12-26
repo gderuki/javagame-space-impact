@@ -46,10 +46,6 @@ public class World {
         return randomPickups;
     }
 
-    public void pause() {
-        executionState = ExecutionState.PAUSED;
-    }
-
     public void spawnLaser(float x, float y) {
         Laser laser = new Laser(x, y);
         lasers.add(laser);

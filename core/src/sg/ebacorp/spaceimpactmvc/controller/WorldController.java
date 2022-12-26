@@ -119,9 +119,6 @@ public class WorldController {
             }
             if (enemy.getPosition().overlaps(world.getPlayer().getPosition())) {
                 world.getPlayer().liveDown();
-                if (!world.getPlayer().alive()) {
-                    world.pause();
-                }
                 iterator.remove();
             }
         }
