@@ -147,7 +147,7 @@ public class WorldController {
     }
 
     private void spawnProjectile() {
-        world.spawnLaser(world.getPlayer().getX() + 91, world.getPlayer().getY() + 24);
+        world.spawnLaser(world.getPlayer().getPosition().getX() + 91, world.getPlayer().getPosition().getY() + 24);
         lastProjectileSpawnTime = TimeUtils.nanoTime();
     }
 }

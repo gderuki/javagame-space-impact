@@ -25,14 +25,6 @@ public class SpaceShip {
         return image;
     }
 
-    public float getX() {
-        return position.getX();
-    }
-
-    public float getY() {
-        return position.getY();
-    }
-
     public void updateUp(float v) {
         position.y = position.y + v;
     }

@@ -95,6 +95,6 @@ public class WorldView {
     }
 
     private void renderPlayer() {
-        batch.draw(world.getPlayer().getImage(), world.getPlayer().getX(), world.getPlayer().getY());
+        batch.draw(world.getPlayer().getImage(), world.getPlayer().getPosition().getX(), world.getPlayer().getPosition().getY());
     }
 }
