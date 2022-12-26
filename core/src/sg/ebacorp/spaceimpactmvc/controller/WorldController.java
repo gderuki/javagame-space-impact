@@ -17,9 +17,9 @@ public class WorldController {
     private final int MOVE_SPEED = 130;
     private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 236000000;
     World world;
-    long lastEnemySpawnTime = 0;
-    long lastRandomItemSpawnTime = 0;
-    long lastProjectileSpawnTime = 0;
+    long lastEnemySpawnTime = TimeUtils.millis();
+    long lastRandomItemSpawnTime = TimeUtils.millis();
+    long lastProjectileSpawnTime = TimeUtils.millis();
 
     public WorldController(World world) {
         this.world = world;
@@ -108,7 +108,7 @@ public class WorldController {
     }
 
     private void spawnRandomItems() {
-        if (TimeUtils.millis() - lastRandomItemSpawnTime > MathUtils.random(1000, 10000)) {
+        if (TimeUtils.millis() - lastRandomItemSpawnTime > MathUtils.random(10000, 60000)) {
             int topBarOffset = (RuntimeConfig.getInstance().screenHeight - 64 - 16);
             float y = MathUtils.random(128, topBarOffset - 64 - 16);
             float x = RuntimeConfig.getInstance().screenWidth;
