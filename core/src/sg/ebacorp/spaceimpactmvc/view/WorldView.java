@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import sg.ebacorp.spaceimpact.utils.ExecutionState;
 import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 import sg.ebacorp.spaceimpactmvc.model.Enemy;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
@@ -51,19 +52,27 @@ public class WorldView {
 
     public void render() {
         batch.begin();
-        if (world.getPlayer().getLives() > 0) {
-            renderPlayer();
-            renderEnemies();
-            renderLasers();
-            renderRandomItems();
-            renderUI();
+        if (world.getState() == ExecutionState.NONE) {
+            font.getData().setScale(0.94f);
+            font.draw(batch, "SPACE IMPACT", 40, 128);
+            font.getData().setScale(0.5f);
+            font.draw(batch, "Press [SPACE] to START", 40, 64);
+            font.getData().setScale(0.94f);
         } else {
-            font.getData().setScale(0.94f);
-            font.draw(batch, "GAME OVER!", 40, 128);
-            font.getData().setScale(0.35f);
-            font.draw(batch, "Press [SPACE] to restart", 40, 64);
-            font.draw(batch, "- or press [ESC] to quit", 40, 32);
-            font.getData().setScale(0.94f);
+            if (world.getPlayer().getLives() > 0) {
+                renderPlayer();
+                renderEnemies();
+                renderLasers();
+                renderRandomItems();
+                renderUI();
+            } else {
+                font.getData().setScale(0.94f);
+                font.draw(batch, "GAME OVER!", 40, 128);
+                font.getData().setScale(0.35f);
+                font.draw(batch, "Press [SPACE] to restart", 40, 64);
+                font.draw(batch, "- or press [ESC] to quit", 40, 32);
+                font.getData().setScale(0.94f);
+            }
         }
         batch.end();
     }

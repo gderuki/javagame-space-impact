@@ -4,12 +4,15 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import sg.ebacorp.spaceimpact.utils.ExecutionState;
 import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 import sg.ebacorp.spaceimpactmvc.model.Enemy;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
+import sg.ebacorp.spaceimpactmvc.model.ShootSound;
 import sg.ebacorp.spaceimpactmvc.model.World;
 
 public class WorldController {
@@ -26,12 +29,28 @@ public class WorldController {
     }
 
     public void update(float delta) {
-        processInputs();
-        updateEnemyPosition();
-        updateRandomItemPosition();
-        spawnEnemies();
-        spawnRandomItems();
-        updateLaserPosition();
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            Gdx.app.exit();
+        }
+        if (world.getState() == ExecutionState.NONE) {
+            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                world.reset();
+                world.start();
+            }
+        } else {
+            if (world.getPlayer().alive()) {
+                processInputs();
+                updateEnemyPosition();
+                updateRandomItemPosition();
+                spawnEnemies();
+                spawnRandomItems();
+                updateLaserPosition();
+            } else {
+                if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                    world.reset();
+                }
+            }
+        }
     }
 
     private void updateRandomItemPosition() {
@@ -142,7 +161,7 @@ public class WorldController {
             world.getPlayer().updateLeft(PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && TimeUtils.nanoTime() - lastProjectileSpawnTime > PROJECTILE_SPAWN_RATE_COMPARATOR) {
-            //shootSound.play();
+            ShootSound.sound.play();
             spawnProjectile();
         }
     }

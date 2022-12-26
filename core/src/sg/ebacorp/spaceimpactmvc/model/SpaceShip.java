@@ -17,8 +17,7 @@ public class SpaceShip {
     int xray = 0;
 
     public SpaceShip() {
-        position = new Rectangle(10, 10, 91, 64);
-        lives = 2;
+        init();
     }
 
     public Rectangle getPosition() {
@@ -75,5 +74,12 @@ public class SpaceShip {
 
     public void xrayUp() {
         xray += 1;
+    }
+
+    public void init() {
+        position = new Rectangle(10, 10, 91, 64);
+        lives = 2;
+        score = 0;
+        xray = 0;
     }
 }

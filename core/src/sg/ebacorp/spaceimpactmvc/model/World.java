@@ -7,7 +7,7 @@ import sg.ebacorp.spaceimpact.utils.ExecutionState;
 
 public class World {
 
-    ExecutionState executionState = ExecutionState.RUNNING;
+    ExecutionState executionState = ExecutionState.NONE;
 
     private SpaceShip spaceShip;
     private Set<Enemy> enemies;
@@ -58,5 +58,20 @@ public class World {
     public void spawnRandomItem(float x, float y) {
         RandomPickup randomPickup = new RandomPickup(x, y);
         randomPickups.add(randomPickup);
+    }
+
+    public void reset() {
+        enemies.clear();
+        lasers.clear();
+        randomPickups.clear();
+        spaceShip.init();
+    }
+
+    public void start() {
+        executionState = ExecutionState.RUNNING;
+    }
+
+    public ExecutionState getState() {
+        return executionState;
     }
 }
