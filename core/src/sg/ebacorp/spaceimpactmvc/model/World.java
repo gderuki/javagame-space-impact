@@ -1,8 +1,10 @@
 package sg.ebacorp.spaceimpactmvc.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.badlogic.gdx.scenes.scene2d.ui.List;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
 
 public class World {
@@ -69,5 +71,14 @@ public class World {
 
     public ExecutionState getState() {
         return executionState;
+    }
+
+    public ArrayList<RenderAble> getAllRenderAbles() {
+        ArrayList<RenderAble> result = new ArrayList<>();
+        result.add(spaceShip);
+        result.addAll(enemies);
+        result.addAll(lasers);
+        result.addAll(randomPickups);
+        return result;
     }
 }

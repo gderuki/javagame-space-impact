@@ -12,6 +12,7 @@ import sg.ebacorp.spaceimpactmvc.model.Enemy;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.Live;
 import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
+import sg.ebacorp.spaceimpactmvc.model.RenderAble;
 import sg.ebacorp.spaceimpactmvc.model.World;
 import sg.ebacorp.spaceimpactmvc.model.XRay;
 
@@ -56,10 +57,10 @@ public class WorldView {
             printWelcome();
         } else {
             if (world.getPlayer().getLives() > 0) {
-                renderPlayer();
-                renderEnemies();
-                renderLasers();
-                renderRandomItems();
+                //render all renderables
+                for (RenderAble renderAble : world.getAllRenderAbles()) {
+                    batch.draw(renderAble.getTexture(), renderAble.getPosition().getX(), renderAble.getPosition().getY());
+                }
                 renderUI();
             } else {
                 printGameOver();
@@ -85,12 +86,6 @@ public class WorldView {
         font.getData().setScale(0.94f);
     }
 
-    private void renderRandomItems() {
-        for (RandomPickup randomPickup : world.getRandomPickups()) {
-            batch.draw(randomPickup.getImage(), randomPickup.getPosition().getX(), randomPickup.getPosition().getY());
-        }
-    }
-
     private void renderUI() {
         if (world.getPlayer().getLives() > 0) {
             int lives = world.getPlayer().getLives();
@@ -106,21 +101,5 @@ public class WorldView {
                     8 + 32 + 64 + 64 + 64 + 64, TOP_BAR_OFFSET);
             font.draw(batch, String.valueOf(world.getPlayer().getXray()), 24 + 32 + 64 + 64 + 64 + 64 + 64, TOP_BAR_OFFSET + 62);
         }
-    }
-
-    private void renderLasers() {
-        for (Laser laser : world.getLasers()) {
-            batch.draw(laser.getImage(), laser.getPosition().getX(), laser.getPosition().getY());
-        }
-    }
-
-    private void renderEnemies() {
-        for (Enemy enemy : world.getEnemies()) {
-            batch.draw(enemy.getImage(), enemy.getPosition().getX(), enemy.getPosition().getY());
-        }
-    }
-
-    private void renderPlayer() {
-        batch.draw(world.getPlayer().getImage(), world.getPlayer().getPosition().getX(), world.getPlayer().getPosition().getY());
     }
 }

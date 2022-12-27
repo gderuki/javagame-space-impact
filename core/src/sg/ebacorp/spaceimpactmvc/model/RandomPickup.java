@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 
-public class RandomPickup {
+public class RandomPickup implements RenderAble {
 
     private static Texture randomPickupImage;
 
@@ -23,11 +23,13 @@ public class RandomPickup {
         position.x = position.x - v;
     }
 
+    @Override
     public Rectangle getPosition() {
         return position;
     }
 
-    public Texture getImage() {
+    @Override
+    public Texture getTexture() {
         return randomPickupImage;
     }
 }

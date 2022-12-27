@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
-public class Laser {
+public class Laser implements RenderAble {
 
     private static Texture image;
 
@@ -18,10 +18,12 @@ public class Laser {
         position = new Rectangle(x, y, 32, 16);
     }
 
-    public Texture getImage() {
+    @Override
+    public Texture getTexture() {
         return image;
     }
 
+    @Override
     public Rectangle getPosition() {
         return position;
     }

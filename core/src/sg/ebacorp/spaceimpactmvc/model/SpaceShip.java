@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
-public class SpaceShip {
+public class SpaceShip implements RenderAble {
     private static Texture image;
 
     static {
@@ -20,11 +20,13 @@ public class SpaceShip {
         init();
     }
 
+    @Override
     public Rectangle getPosition() {
         return position;
     }
 
-    public Texture getImage() {
+    @Override
+    public Texture getTexture() {
         return image;
     }
 
