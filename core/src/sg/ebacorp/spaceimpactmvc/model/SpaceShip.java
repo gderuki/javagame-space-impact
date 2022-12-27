@@ -116,8 +116,17 @@ public class SpaceShip implements RenderAble {
 
     public void update(float delta) {
         acceleration.scl(delta);
-        // FIXME tune me: if we hit horizontal bounds, make me bounce just like with vertical ones.
-        velocity.scl(((position.x > 10 && position.x < 710) && (position.y > 10 && position.y < 320)) ? delta : -0.75f * delta);
+        if (position.x <= 10) {
+            velocity.x = Math.abs(velocity.x);
+        } else if (position.x >= 710) {
+            velocity.x = -velocity.x;
+        }
+        if (position.y <= 10) {
+            velocity.y = Math.abs(velocity.y);
+        } else if (position.y >= 320) {
+            velocity.y = -velocity.y;
+        }
+        velocity.scl(delta);
         velocity.add(acceleration.x, acceleration.y);
         position.add(velocity);
         velocity.scl(1 / delta);
