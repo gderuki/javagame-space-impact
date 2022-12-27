@@ -59,7 +59,7 @@ public class WorldView {
             if (world.getPlayer().getLives() > 0) {
                 //render all renderables
                 for (RenderAble renderAble : world.getAllRenderAbles()) {
-                    batch.draw(renderAble.getTexture(), renderAble.getPosition().getX(), renderAble.getPosition().getY());
+                    batch.draw(renderAble.getTexture(), renderAble.getPosition().x, renderAble.getPosition().y);
                 }
                 renderUI();
             } else {

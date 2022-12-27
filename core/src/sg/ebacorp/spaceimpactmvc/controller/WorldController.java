@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
@@ -17,6 +16,8 @@ import sg.ebacorp.spaceimpactmvc.model.World;
 
 public class WorldController {
     private float PLAYER_MOVE_SPEED = 140;
+    private float PLAYER_MOVE_SPEED_UNIT = 8;
+    private static final float ACCELERATION = 20f;
     private final int MOVE_SPEED = 130;
     private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 236000000;
     World world;
@@ -45,6 +46,7 @@ public class WorldController {
                 spawnEnemies();
                 spawnRandomItems();
                 updateLaserPosition();
+                world.getPlayer().update(delta);
             } else {
                 if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     world.reset();
@@ -61,7 +63,7 @@ public class WorldController {
             if (randomPickup.getPosition().x + 64 < 0) {
                 iterator.remove();
             }
-            if (randomPickup.getPosition().overlaps(world.getPlayer().getPosition())) {
+            if (randomPickup.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
                 float mathRandom = MathUtils.random();
                 if (mathRandom < .4) {
                     if (world.getPlayer().getLives() <= 3) {
@@ -100,7 +102,7 @@ public class WorldController {
             Iterator<Enemy> enemyIterator = world.getEnemies().iterator();
             while (enemyIterator.hasNext()) {
                 Enemy enemy = enemyIterator.next();
-                if (enemy.getPosition().overlaps(laser.getPosition())) {
+                if (enemy.getPositionAsRectangle().overlaps(laser.getPositionAsRectangle())) {
                     world.getPlayer().scoreUp();
                     laserIterator.remove();
                     enemyIterator.remove();
@@ -117,7 +119,7 @@ public class WorldController {
             if (enemy.getPosition().x + 64 < 0) {
                 iterator.remove();
             }
-            if (enemy.getPosition().overlaps(world.getPlayer().getPosition())) {
+            if (enemy.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
                 world.getPlayer().liveDown();
                 iterator.remove();
             }
@@ -146,25 +148,29 @@ public class WorldController {
 
     private void processInputs() {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            world.getPlayer().updateUp(PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            world.getPlayer().getAcceleration().y = ACCELERATION;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            world.getPlayer().updateDown(PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            world.getPlayer().getAcceleration().y = -ACCELERATION;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            world.getPlayer().updateRight(PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            world.getPlayer().getAcceleration().x = ACCELERATION;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            world.getPlayer().updateLeft(PLAYER_MOVE_SPEED * Gdx.graphics.getDeltaTime());
+            world.getPlayer().getAcceleration().x = -ACCELERATION;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && TimeUtils.nanoTime() - lastProjectileSpawnTime > PROJECTILE_SPAWN_RATE_COMPARATOR) {
             ShootSound.sound.play();
             spawnProjectile();
         }
+        if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.UP) &&
+                !Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            world.getPlayer().clearAcceleration();
+        }
     }
 
     private void spawnProjectile() {
-        world.spawnLaser(world.getPlayer().getPosition().getX() + 91, world.getPlayer().getPosition().getY() + 24);
+        world.spawnLaser(world.getPlayer().getPosition().x + 91, world.getPlayer().getPosition().y + 24);
         lastProjectileSpawnTime = TimeUtils.nanoTime();
     }
 }

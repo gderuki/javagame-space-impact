@@ -3,6 +3,7 @@ package sg.ebacorp.spaceimpactmvc.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class SpaceShip implements RenderAble {
     private static Texture image;
@@ -11,9 +12,18 @@ public class SpaceShip implements RenderAble {
         image = new Texture(Gdx.files.internal("ship.png"));
     }
 
-    private Rectangle position;
+    private Vector2 position;
+
+    private Vector2 acceleration = new Vector2();
+
+    private Vector2 velocity = new Vector2();
+
+    private Rectangle bounds;
+
     int lives;
+
     int score = 0;
+
     int xray = 0;
 
     public SpaceShip() {
@@ -21,7 +31,7 @@ public class SpaceShip implements RenderAble {
     }
 
     @Override
-    public Rectangle getPosition() {
+    public Vector2 getPosition() {
         return position;
     }
 
@@ -79,9 +89,32 @@ public class SpaceShip implements RenderAble {
     }
 
     public void init() {
-        position = new Rectangle(10, 10, 91, 64);
         lives = 2;
         score = 0;
         xray = 0;
+        position = new Vector2(10, 10);
+        bounds = new Rectangle();
+        bounds.setWidth(91);
+        bounds.setHeight(64);
+    }
+
+    public void clearAcceleration() {
+        acceleration.y = 0;
+    }
+
+    public Rectangle getPositionAsRectangle() {
+        return new Rectangle(position.x, position.y, bounds.width, bounds.height);
+    }
+
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    public void update(float delta) {
+        acceleration.scl(delta);
+        velocity.scl(delta);
+        velocity.add(acceleration.x, acceleration.y);
+        position.add(velocity);
+        velocity.scl(1 / delta);
     }
 }

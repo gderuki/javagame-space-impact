@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class RandomPickup implements RenderAble {
 
@@ -13,10 +14,14 @@ public class RandomPickup implements RenderAble {
         randomPickupImage = new Texture(Gdx.files.internal("heal.png"));
     }
 
-    private Rectangle position;
+    private Vector2 position;
+    private Rectangle bounds;
 
     public RandomPickup(float x, float y) {
-        this.position = new Rectangle(x, y, 64, 64);
+        position = new Vector2(x, y);
+        bounds = new Rectangle();
+        bounds.setWidth(64);
+        bounds.setHeight(64);
     }
 
     public void moveLeft(float v) {
@@ -24,8 +29,12 @@ public class RandomPickup implements RenderAble {
     }
 
     @Override
-    public Rectangle getPosition() {
+    public Vector2 getPosition() {
         return position;
+    }
+
+    public Rectangle getPositionAsRectangle() {
+        return new Rectangle(position.x, position.y, bounds.width, bounds.height);
     }
 
     @Override
