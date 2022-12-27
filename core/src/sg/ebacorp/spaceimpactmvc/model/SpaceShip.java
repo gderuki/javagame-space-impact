@@ -96,7 +96,7 @@ public class SpaceShip implements RenderAble {
         lives = 2;
         score = 0;
         xray = 0;
-        position = new Vector2(10, 10);
+        position = new Vector2(20, 220);
         bounds = new Rectangle();
         bounds.setWidth(91);
         bounds.setHeight(64);
@@ -116,7 +116,8 @@ public class SpaceShip implements RenderAble {
 
     public void update(float delta) {
         acceleration.scl(delta);
-        velocity.scl(delta);
+        // FIXME tune me: if we hit horizontal bounds, make me bounce just like with vertical ones.
+        velocity.scl(((position.x > 10 && position.x < 710) && (position.y > 10 && position.y < 320)) ? delta : -0.75f * delta);
         velocity.add(acceleration.x, acceleration.y);
         position.add(velocity);
         velocity.scl(1 / delta);
