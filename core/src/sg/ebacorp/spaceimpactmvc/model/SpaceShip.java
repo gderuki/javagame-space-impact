@@ -48,6 +48,10 @@ public class SpaceShip implements RenderAble {
         position.y = position.y - v;
     }
 
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
     public void updateRight(float v) {
         position.x = position.x + v;
     }

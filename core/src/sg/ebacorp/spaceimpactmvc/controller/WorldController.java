@@ -17,7 +17,9 @@ import sg.ebacorp.spaceimpactmvc.model.World;
 public class WorldController {
     private float PLAYER_MOVE_SPEED = 140;
     private float PLAYER_MOVE_SPEED_UNIT = 8;
+    private static final float DAMP = 0.97f;
     private static final float ACCELERATION = 20f;
+
     private final int MOVE_SPEED = 130;
     private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 236000000;
     World world;
@@ -47,6 +49,8 @@ public class WorldController {
                 spawnRandomItems();
                 updateLaserPosition();
                 world.getPlayer().update(delta);
+                world.getPlayer().getVelocity().x *= DAMP;
+                world.getPlayer().getVelocity().y *= DAMP;
             } else {
                 if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     world.reset();
