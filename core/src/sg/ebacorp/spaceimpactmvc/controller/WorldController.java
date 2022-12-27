@@ -49,8 +49,7 @@ public class WorldController {
                 spawnRandomItems();
                 updateLaserPosition();
                 world.getPlayer().update(delta);
-                world.getPlayer().getVelocity().x *= DAMP;
-                world.getPlayer().getVelocity().y *= DAMP;
+                world.getPlayer().getVelocity().scl(DAMP);
             } else {
                 if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     world.reset();
