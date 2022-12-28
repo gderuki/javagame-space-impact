@@ -10,4 +10,6 @@ public interface RenderAble {
 
     Texture getTexture();
 
+    Rectangle getBounds();
+
 }

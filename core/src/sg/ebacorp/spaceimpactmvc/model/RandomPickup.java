@@ -20,12 +20,17 @@ public class RandomPickup implements RenderAble {
     public RandomPickup(float x, float y) {
         position = new Vector2(x, y);
         bounds = new Rectangle();
-        bounds.setWidth(64);
-        bounds.setHeight(64);
+        bounds.setWidth(1f);
+        bounds.setHeight(1f);
     }
 
     public void moveLeft(float v) {
         position.x = position.x - v;
+    }
+
+    @Override
+    public Rectangle getBounds() {
+        return bounds;
     }
 
     @Override

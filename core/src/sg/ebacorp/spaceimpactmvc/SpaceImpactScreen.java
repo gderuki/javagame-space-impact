@@ -33,7 +33,7 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
 
     @Override
     public void resize(int width, int height) {
-
+        worldView.setSize(width, height);
     }
 
     @Override

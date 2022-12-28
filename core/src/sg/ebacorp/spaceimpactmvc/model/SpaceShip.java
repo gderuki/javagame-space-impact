@@ -22,9 +22,9 @@ public class SpaceShip implements RenderAble {
 
     int lives;
 
-    int score = 0;
+    int score;
 
-    int xray = 0;
+    int xray;
 
     public SpaceShip() {
         init();
@@ -38,6 +38,11 @@ public class SpaceShip implements RenderAble {
     @Override
     public Texture getTexture() {
         return image;
+    }
+
+    @Override
+    public Rectangle getBounds() {
+        return bounds;
     }
 
     public void updateUp(float v) {
@@ -96,10 +101,8 @@ public class SpaceShip implements RenderAble {
         lives = 2;
         score = 0;
         xray = 0;
-        position = new Vector2(20, 220);
-        bounds = new Rectangle();
-        bounds.setWidth(91);
-        bounds.setHeight(64);
+        position = new Vector2(1, 1);
+        bounds = new Rectangle(position.x, position.y, 1.25f, 1.0f);
     }
 
     public void clearAcceleration() {
@@ -116,18 +119,23 @@ public class SpaceShip implements RenderAble {
 
     public void update(float delta) {
         acceleration.scl(delta);
-        if (position.x <= 10) {
+        velocity.add(acceleration.x, acceleration.y);
+        velocity.scl(delta);
+        Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
+        rectangle.x += velocity.x;
+        if (rectangle.x < 0) {
             velocity.x = Math.abs(velocity.x);
-        } else if (position.x >= 710) {
+        }
+        if (rectangle.x > 9) {
             velocity.x = -velocity.x;
         }
-        if (position.y <= 10) {
-            velocity.y = Math.abs(velocity.y);
-        } else if (position.y >= 320) {
+        rectangle.y += velocity.y;
+        if (rectangle.y < 0) {
+            velocity.y = Math.abs((velocity.y));
+        }
+        if (rectangle.y > 5) {
             velocity.y = -velocity.y;
         }
-        velocity.scl(delta);
-        velocity.add(acceleration.x, acceleration.y);
         position.add(velocity);
         velocity.scl(1 / delta);
     }

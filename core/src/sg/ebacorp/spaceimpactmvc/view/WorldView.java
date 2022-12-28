@@ -7,26 +7,22 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
-import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
-import sg.ebacorp.spaceimpactmvc.model.Enemy;
-import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.Live;
-import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
 import sg.ebacorp.spaceimpactmvc.model.RenderAble;
 import sg.ebacorp.spaceimpactmvc.model.World;
 import sg.ebacorp.spaceimpactmvc.model.XRay;
 
 public class WorldView {
 
-    public static float CAMERA_WIDTH = 8f;
-    public static float CAMERA_HEIGHT = 5f;
-
-    private final int TOP_BAR_OFFSET = (RuntimeConfig.getInstance().screenHeight - 64 - 16);
+    public static float CAMERA_WIDTH = 10f;
+    public static float CAMERA_HEIGHT = 7f;
 
     private World world;
     public OrthographicCamera cam;
     private SpriteBatch batch;
     private BitmapFont font;
+    private float ppuX;
+    private float ppuY;
 
     public WorldView(World world) {
         this.world = world;
@@ -59,7 +55,8 @@ public class WorldView {
             if (world.getPlayer().getLives() > 0) {
                 //render all renderables
                 for (RenderAble renderAble : world.getAllRenderAbles()) {
-                    batch.draw(renderAble.getTexture(), renderAble.getPosition().x, renderAble.getPosition().y);
+                    batch.draw(renderAble.getTexture(), renderAble.getPosition().x * ppuX, renderAble.getPosition().y * ppuY,
+                            renderAble.getBounds().width * ppuX, renderAble.getBounds().height * ppuY);
                 }
                 renderUI();
             } else {
@@ -90,16 +87,18 @@ public class WorldView {
         if (world.getPlayer().getLives() > 0) {
             int lives = world.getPlayer().getLives();
             for (int i = 0; i < lives && i < 5; i++) {
-                batch.draw(Live.texture, (72 * i), TOP_BAR_OFFSET);
+                batch.draw(Live.texture, ppuX * i, 6 * ppuY);
             }
-
         }
-        font.draw(batch, String.format("%05d", world.getPlayer().getScore()), RuntimeConfig.getInstance().screenWidth - 256 - 48,
-                TOP_BAR_OFFSET + 62);
+        font.draw(batch, String.format("%05d", world.getPlayer().getScore()), 6 * ppuX, 6.9f * ppuY);
         if (world.getPlayer().getXray() > 0) {
-            batch.draw(XRay.xRayImage, // 64x64
-                    8 + 32 + 64 + 64 + 64 + 64, TOP_BAR_OFFSET);
-            font.draw(batch, String.valueOf(world.getPlayer().getXray()), 24 + 32 + 64 + 64 + 64 + 64 + 64, TOP_BAR_OFFSET + 62);
+            batch.draw(XRay.xRayImage, 4 * ppuX, 6 * ppuY);
+            font.draw(batch, String.valueOf(world.getPlayer().getXray()), 5 * ppuX, 6.9f * ppuY);
         }
+    }
+
+    public void setSize(int width, int height) {
+        ppuX = (float) width / CAMERA_WIDTH;
+        ppuY = (float) height / CAMERA_HEIGHT;
     }
 }

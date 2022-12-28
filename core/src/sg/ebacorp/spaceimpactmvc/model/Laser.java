@@ -20,8 +20,13 @@ public class Laser implements RenderAble {
     public Laser(float x, float y) {
         position = new Vector2(x, y);
         bounds = new Rectangle();
-        bounds.setWidth(32);
-        bounds.setHeight(16);
+        bounds.setWidth(0.5f);
+        bounds.setHeight(0.25f);
+    }
+
+    @Override
+    public Rectangle getBounds() {
+        return bounds;
     }
 
     @Override

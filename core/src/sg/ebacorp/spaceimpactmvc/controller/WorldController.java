@@ -15,12 +15,11 @@ import sg.ebacorp.spaceimpactmvc.model.ShootSound;
 import sg.ebacorp.spaceimpactmvc.model.World;
 
 public class WorldController {
-    private float PLAYER_MOVE_SPEED = 140;
-    private float PLAYER_MOVE_SPEED_UNIT = 8;
     private static final float DAMP = 0.97f;
     private static final float ACCELERATION = 20f;
-
-    private final int MOVE_SPEED = 130;
+    public static final float LASER_SPEED = 1.75f;
+    public static final int UNITS_OUT_OF_SCREEN = 2;
+    public static final int RANDOM_SPEED = 1;
     private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 236000000;
     World world;
     long lastEnemySpawnTime = TimeUtils.millis();
@@ -62,8 +61,8 @@ public class WorldController {
         Iterator<RandomPickup> iterator = world.getRandomPickups().iterator();
         while (iterator.hasNext()) {
             RandomPickup randomPickup = iterator.next();
-            randomPickup.moveLeft(MOVE_SPEED * Gdx.graphics.getDeltaTime());
-            if (randomPickup.getPosition().x + 64 < 0) {
+            randomPickup.moveLeft(Gdx.graphics.getDeltaTime());
+            if (randomPickup.getPosition().x + RANDOM_SPEED < 0) {
                 iterator.remove();
             }
             if (randomPickup.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
@@ -101,7 +100,7 @@ public class WorldController {
         Iterator<Laser> laserIterator = world.getLasers().iterator();
         while (laserIterator.hasNext()) {
             Laser laser = laserIterator.next();
-            laser.getPosition().x += (MOVE_SPEED * 1.75) * Gdx.graphics.getDeltaTime();
+            laser.getPosition().x += LASER_SPEED * Gdx.graphics.getDeltaTime();
             Iterator<Enemy> enemyIterator = world.getEnemies().iterator();
             while (enemyIterator.hasNext()) {
                 Enemy enemy = enemyIterator.next();
@@ -118,8 +117,8 @@ public class WorldController {
         Iterator<Enemy> iterator = world.getEnemies().iterator();
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
-            enemy.moveLeft(MOVE_SPEED * Gdx.graphics.getDeltaTime());
-            if (enemy.getPosition().x + 64 < 0) {
+            enemy.moveLeft(Gdx.graphics.getDeltaTime());
+            if (enemy.getPosition().x + UNITS_OUT_OF_SCREEN < 0) {
                 iterator.remove();
             }
             if (enemy.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
@@ -131,21 +130,17 @@ public class WorldController {
 
     private void spawnRandomItems() {
         if (TimeUtils.millis() - lastRandomItemSpawnTime > MathUtils.random(10000, 60000)) {
-            int topBarOffset = (RuntimeConfig.getInstance().screenHeight - 64 - 16);
-            float y = MathUtils.random(128, topBarOffset - 64 - 16);
-            float x = RuntimeConfig.getInstance().screenWidth;
+            float y = MathUtils.random(1f, 5f);
             lastRandomItemSpawnTime = TimeUtils.millis();
-            world.spawnRandomItem(x, y);
+            world.spawnRandomItem(11, y);
         }
     }
 
     private void spawnEnemies() {
         if (TimeUtils.millis() - lastEnemySpawnTime > MathUtils.random(1000, 10000)) {
-            int topBarOffset = (RuntimeConfig.getInstance().screenHeight - 64 - 16);
-            float y = MathUtils.random(128, topBarOffset - 64 - 16);
-            float x = RuntimeConfig.getInstance().screenWidth + 64;
+            float y = MathUtils.random(1f, 5f);
             lastEnemySpawnTime = TimeUtils.millis();
-            world.spawnEnemy(x, y);
+            world.spawnEnemy(11, y);
         }
     }
 
@@ -173,7 +168,8 @@ public class WorldController {
     }
 
     private void spawnProjectile() {
-        world.spawnLaser(world.getPlayer().getPosition().x + 91, world.getPlayer().getPosition().y + 24);
+        world.spawnLaser(world.getPlayer().getPosition().x + world.getPlayer().getBounds().width,
+                world.getPlayer().getPosition().y + (world.getPlayer().getBounds().height / 2));
         lastProjectileSpawnTime = TimeUtils.nanoTime();
     }
 }

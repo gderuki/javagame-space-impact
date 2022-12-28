@@ -19,8 +19,13 @@ public class Enemy implements RenderAble {
     public Enemy(float x, float y) {
         position = new Vector2(x, y);
         bounds = new Rectangle();
-        bounds.setWidth(96);
-        bounds.setHeight(64);
+        bounds.setWidth(1.25f);
+        bounds.setHeight(1f);
+    }
+
+    @Override
+    public Rectangle getBounds() {
+        return bounds;
     }
 
     @Override
