@@ -17,8 +17,9 @@ public class WorldController {
     private static final float DAMP = 0.97f;
     private static final float ACCELERATION = 20f;
     public static final float LASER_SPEED = 1.75f;
-    public static final int UNITS_OUT_OF_SCREEN = 2;
     public static final int RANDOM_SPEED = 1;
+    public static final float ENEMY_DAMAGED_GRAVITY = -5f;
+    public static final int CHASE_ACCELERATION = -20;
     private final long PROJECTILE_SPAWN_RATE_COMPARATOR = 236000000;
     World world;
     long lastEnemySpawnTime = TimeUtils.millis();
@@ -106,7 +107,7 @@ public class WorldController {
                 if (enemy.getPositionAsRectangle().overlaps(laser.getPositionAsRectangle())) {
                     world.getPlayer().scoreUp();
                     laserIterator.remove();
-                    enemyIterator.remove();
+                    enemy.getAcceleration().y = ENEMY_DAMAGED_GRAVITY;
                 }
             }
         }
@@ -117,12 +118,12 @@ public class WorldController {
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
             enemy.update(delta);
-            if (enemy.getPosition().x + UNITS_OUT_OF_SCREEN < 0) {
+            if (enemy.getPosition().x + enemy.getBounds().width < 0 || enemy.getPosition().y + enemy.getBounds().height < 0) {
                 iterator.remove();
             }
             // enemy is closer than 3 game units we should enable acceleration
             if (enemy.getPosition().dst(world.getPlayer().getPosition()) < 3) {
-                enemy.getAcceleration().x = -20;
+                enemy.getAcceleration().x = CHASE_ACCELERATION;
             }
             if (enemy.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
                 world.getPlayer().liveDown();
