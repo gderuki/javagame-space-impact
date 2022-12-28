@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Enemy implements RenderAble {
 
+    public static final int ENEMY_ACCELERATION = 0;
+    public static final int ENEMY_VELOCITY = -1;
     private static Texture image;
 
     static {
@@ -15,12 +17,16 @@ public class Enemy implements RenderAble {
 
     private Vector2 position;
     private Rectangle bounds;
+    private Vector2 velocity;
+    private Vector2 acceleration;
 
     public Enemy(float x, float y) {
         position = new Vector2(x, y);
         bounds = new Rectangle();
         bounds.setWidth(1.25f);
         bounds.setHeight(1f);
+        acceleration = new Vector2(ENEMY_ACCELERATION, 0);
+        velocity = new Vector2(ENEMY_VELOCITY, 0);
     }
 
     @Override
@@ -42,7 +48,16 @@ public class Enemy implements RenderAble {
         return image;
     }
 
-    public void moveLeft(float v) {
-        position.x = position.x - v;
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    public void update(float delta) {
+        acceleration.scl(delta);
+        velocity.add(acceleration.x, acceleration.y);
+        velocity.scl(delta);
+        position.add(velocity);
+        velocity.scl(1 / delta);
+        acceleration.scl(1 / delta);
     }
 }

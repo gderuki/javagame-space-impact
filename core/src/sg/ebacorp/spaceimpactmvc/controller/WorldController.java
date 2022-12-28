@@ -7,7 +7,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
-import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 import sg.ebacorp.spaceimpactmvc.model.Enemy;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
@@ -42,7 +41,7 @@ public class WorldController {
         } else {
             if (world.getPlayer().alive()) {
                 processInputs();
-                updateEnemyPosition();
+                updateEnemyPosition(delta);
                 updateRandomItemPosition();
                 spawnEnemies();
                 spawnRandomItems();
@@ -113,19 +112,24 @@ public class WorldController {
         }
     }
 
-    private void updateEnemyPosition() {
+    private void updateEnemyPosition(float delta) {
         Iterator<Enemy> iterator = world.getEnemies().iterator();
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
-            enemy.moveLeft(Gdx.graphics.getDeltaTime());
+            enemy.update(delta);
             if (enemy.getPosition().x + UNITS_OUT_OF_SCREEN < 0) {
                 iterator.remove();
+            }
+            // enemy is closer than 3 game units we should enable acceleration
+            if (enemy.getPosition().dst(world.getPlayer().getPosition()) < 3) {
+                enemy.getAcceleration().x = -20;
             }
             if (enemy.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
                 world.getPlayer().liveDown();
                 iterator.remove();
             }
         }
+
     }
 
     private void spawnRandomItems() {
