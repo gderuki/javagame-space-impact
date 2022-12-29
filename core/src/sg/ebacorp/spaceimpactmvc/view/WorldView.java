@@ -55,8 +55,13 @@ public class WorldView {
             if (world.getPlayer().getLives() > 0) {
                 //render all renderables
                 for (RenderAble renderAble : world.getAllRenderAbles()) {
-                    batch.draw(renderAble.getTexture(), renderAble.getPosition().x * ppuX, renderAble.getPosition().y * ppuY,
-                            renderAble.getBounds().width * ppuX, renderAble.getBounds().height * ppuY);
+                    batch.draw(
+                            renderAble.getTexture(),
+                            renderAble.getPosition().x * ppuX,
+                            renderAble.getPosition().y * ppuY,
+                            renderAble.getBounds().width * ppuX,
+                            renderAble.getBounds().height * ppuY
+                    );
                 }
             } else {
                 printGameOver();

@@ -102,7 +102,7 @@ public class SpaceShip implements RenderAble {
         score = 0;
         xray = 0;
         position = new Vector2(1, 1);
-        bounds = new Rectangle(position.x, position.y, 1.0f, 1.0f);
+        bounds = new Rectangle(position.x, position.y, 1.5f, 1.0f);
     }
 
     public void clearAcceleration() {
