@@ -43,7 +43,7 @@ public class WorldController {
             }
         } else {
             if (world.getPlayer().alive()) {
-                processInputs();
+                processInputs(delta);
 
                 if (!IS_DEBUG) {
                     spawnEnemies();
@@ -155,7 +155,7 @@ public class WorldController {
         }
     }
 
-    private void processInputs() {
+    private void processInputs(float delta) {
         // WASD Movement
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             world.getPlayer().getAcceleration().y = ACCELERATION;
@@ -176,7 +176,7 @@ public class WorldController {
 
         // Jump
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            world.getPlayer().getAcceleration().y = +ACCELERATION;
+            world.getPlayer().jump(delta);
         }
 
         if (!IS_DEBUG) {

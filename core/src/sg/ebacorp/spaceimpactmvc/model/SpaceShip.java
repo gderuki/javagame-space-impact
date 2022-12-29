@@ -117,10 +117,25 @@ public class SpaceShip implements RenderAble {
         return acceleration;
     }
 
+    private boolean jumping = false;
+
+    // FIXME
+    public void jump(float delta) {
+        Vector2 cpy = acceleration.cpy();
+        cpy.scl(delta);
+        cpy.y += 0.1f;
+        position.add(cpy);
+
+        if (!jumping) {
+
+        }
+    }
+
+
     public void update(float delta) {
         acceleration.scl(delta);
         velocity.add(acceleration.x, acceleration.y);
-        velocity.scl(delta * 0.95f);
+        velocity.scl(delta);
         Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
         rectangle.x += velocity.x;
         if (rectangle.x < 0) {
