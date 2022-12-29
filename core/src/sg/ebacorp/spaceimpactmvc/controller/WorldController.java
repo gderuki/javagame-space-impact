@@ -43,7 +43,7 @@ public class WorldController {
             }
         } else {
             if (world.getPlayer().alive()) {
-                processInputs(delta);
+                processInputs();
 
                 if (!IS_DEBUG) {
                     spawnEnemies();
@@ -53,8 +53,7 @@ public class WorldController {
                     updateLaserPosition();
                 }
 
-                world.getPlayer().update(delta);
-                world.getPlayer().getVelocity().scl(DAMP);
+                world.getPlayer().update(delta, DAMP);
             } else {
                 if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     world.reset();
@@ -155,7 +154,7 @@ public class WorldController {
         }
     }
 
-    private void processInputs(float delta) {
+    private void processInputs() {
         // WASD Movement
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             world.getPlayer().getAcceleration().y = ACCELERATION;
@@ -176,7 +175,8 @@ public class WorldController {
 
         // Jump
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            world.getPlayer().jump(delta);
+            world.getPlayer().jump(ACCELERATION);
+
         }
 
         if (!IS_DEBUG) {

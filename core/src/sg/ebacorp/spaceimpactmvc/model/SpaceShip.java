@@ -14,7 +14,11 @@ public class SpaceShip implements RenderAble {
 
     private Vector2 position;
 
+    private Vector2 positionBeforeJump = new Vector2();
+
     private Vector2 acceleration = new Vector2();
+
+    private Vector2 jumpAcceleration = new Vector2();
 
     private Vector2 velocity = new Vector2();
 
@@ -120,38 +124,55 @@ public class SpaceShip implements RenderAble {
     private boolean jumping = false;
 
     // FIXME
-    public void jump(float delta) {
-        Vector2 cpy = acceleration.cpy();
-        cpy.scl(delta);
-        cpy.y += 0.1f;
-        position.add(cpy);
-
-        if (!jumping) {
-
+    public void jump(float acceleration) {
+        if (velocity.y != 0) {
+            if (velocity.y < 0) {
+                jumpAcceleration.y = -acceleration * 2;
+            } else {
+                jumpAcceleration.y = acceleration * 2;
+            }
         }
+        positionBeforeJump.x = position.x;
+        positionBeforeJump.y = position.y;
     }
 
+    public Vector2 getJumpAcceleration() {
+        return jumpAcceleration;
+    }
 
-    public void update(float delta) {
-        acceleration.scl(delta);
-        velocity.add(acceleration.x, acceleration.y);
-        velocity.scl(delta);
-        Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
-        rectangle.x += velocity.x;
-        if (rectangle.x < 0) {
-            velocity.x = Math.abs(velocity.x);
+    public void update(float delta, float damp) {
+        if (jumpAcceleration.y != 0) {
+            Vector2 copyScaled = jumpAcceleration.cpy().scl(delta);
+            velocity.add(acceleration.x, copyScaled.y);
+            velocity.scl(delta);
+            position.add(velocity);
+            velocity.scl(1 / delta);
+            if (position.dst(positionBeforeJump) > 2) {
+                jumpAcceleration.y = 0;
+                velocity.y = 0;
+            }
+        } else {
+            acceleration.scl(delta);
+            velocity.add(acceleration.x, acceleration.y);
+            velocity.scl(delta);
+            Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
+            rectangle.x += velocity.x;
+            if (rectangle.x < 0) {
+                velocity.x = Math.abs(velocity.x);
+            }
+            if (rectangle.x > 15) {
+                velocity.x = -velocity.x;
+            }
+            rectangle.y += velocity.y;
+            if (rectangle.y < 0) {
+                velocity.y = Math.abs((velocity.y));
+            }
+            if (rectangle.y > 8) {
+                velocity.y = -velocity.y;
+            }
+            position.add(velocity);
+            velocity.scl(1 / delta);
+            velocity.scl(damp);
         }
-        if (rectangle.x > 15) {
-            velocity.x = -velocity.x;
-        }
-        rectangle.y += velocity.y;
-        if (rectangle.y < 0) {
-            velocity.y = Math.abs((velocity.y));
-        }
-        if (rectangle.y > 8) {
-            velocity.y = -velocity.y;
-        }
-        position.add(velocity);
-        velocity.scl(1 / delta);
     }
 }
