@@ -136,43 +136,40 @@ public class SpaceShip implements RenderAble {
         positionBeforeJump.y = position.y;
     }
 
-    public Vector2 getJumpAcceleration() {
-        return jumpAcceleration;
-    }
-
     public void update(float delta, float damp) {
+        acceleration.scl(delta);
         if (jumpAcceleration.y != 0) {
             Vector2 copyScaled = jumpAcceleration.cpy().scl(delta);
             velocity.add(acceleration.x, copyScaled.y);
-            velocity.scl(delta);
-            position.add(velocity);
-            velocity.scl(1 / delta);
+        } else {
+            velocity.add(acceleration.x, acceleration.y);
+        }
+        velocity.scl(delta);
+        Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
+        rectangle.x += velocity.x;
+        if (rectangle.x < 0) {
+            velocity.x = Math.abs(velocity.x);
+        }
+        if (rectangle.x > 15) {
+            velocity.x = -velocity.x;
+        }
+        rectangle.y += velocity.y;
+        if (rectangle.y < 0) {
+            velocity.y = Math.abs((velocity.y));
+        }
+        if (rectangle.y > 8) {
+            velocity.y = -velocity.y;
+        }
+        position.add(velocity);
+        velocity.scl(1 / delta);
+        if (jumpAcceleration.y != 0) {
             if (position.dst(positionBeforeJump) > 2) {
                 jumpAcceleration.y = 0;
                 velocity.y = 0;
             }
         } else {
-            acceleration.scl(delta);
-            velocity.add(acceleration.x, acceleration.y);
-            velocity.scl(delta);
-            Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
-            rectangle.x += velocity.x;
-            if (rectangle.x < 0) {
-                velocity.x = Math.abs(velocity.x);
-            }
-            if (rectangle.x > 15) {
-                velocity.x = -velocity.x;
-            }
-            rectangle.y += velocity.y;
-            if (rectangle.y < 0) {
-                velocity.y = Math.abs((velocity.y));
-            }
-            if (rectangle.y > 8) {
-                velocity.y = -velocity.y;
-            }
-            position.add(velocity);
-            velocity.scl(1 / delta);
             velocity.scl(damp);
         }
     }
+
 }
