@@ -14,8 +14,8 @@ import sg.ebacorp.spaceimpactmvc.model.XRay;
 
 public class WorldView {
 
-    public static float CAMERA_WIDTH = 10f;
-    public static float CAMERA_HEIGHT = 7f;
+    public static float CAMERA_WIDTH = 16f;
+    public static float CAMERA_HEIGHT = 9f;
 
     private World world;
     public OrthographicCamera cam;
@@ -58,7 +58,6 @@ public class WorldView {
                     batch.draw(renderAble.getTexture(), renderAble.getPosition().x * ppuX, renderAble.getPosition().y * ppuY,
                             renderAble.getBounds().width * ppuX, renderAble.getBounds().height * ppuY);
                 }
-                renderUI();
             } else {
                 printGameOver();
             }
@@ -67,22 +66,15 @@ public class WorldView {
     }
 
     private void printWelcome() {
-        font.getData().setScale(0.94f);
         font.draw(batch, "SPACE IMPACT", 40, 128);
-        font.getData().setScale(0.5f);
         font.draw(batch, "Press [SPACE] to START", 40, 64);
-        font.getData().setScale(0.94f);
     }
 
     private void printGameOver() {
-        font.getData().setScale(0.94f);
         font.draw(batch, "GAME OVER!", 40, 128);
-        font.getData().setScale(0.35f);
-        font.draw(batch, "Press [SPACE] to restart", 40, 64);
-        font.draw(batch, "- or press [ESC] to quit", 40, 32);
-        font.getData().setScale(0.94f);
     }
 
+    @Deprecated
     private void renderUI() {
         if (world.getPlayer().getLives() > 0) {
             int lives = world.getPlayer().getLives();

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.badlogic.gdx.scenes.scene2d.ui.List;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
 
 public class World {

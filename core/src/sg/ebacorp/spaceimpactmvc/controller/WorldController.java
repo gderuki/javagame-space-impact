@@ -13,6 +13,8 @@ import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
 import sg.ebacorp.spaceimpactmvc.model.ShootSound;
 import sg.ebacorp.spaceimpactmvc.model.World;
 
+import static sg.ebacorp.spaceimpactmvc.Config.IS_DEBUG;
+
 public class WorldController {
     private static final float DAMP = 0.97f;
     private static final float ACCELERATION = 20f;
@@ -42,11 +44,15 @@ public class WorldController {
         } else {
             if (world.getPlayer().alive()) {
                 processInputs();
-                updateEnemyPosition(delta);
-                updateRandomItemPosition();
-                spawnEnemies();
-                spawnRandomItems();
-                updateLaserPosition();
+
+                if (!IS_DEBUG) {
+                    spawnEnemies();
+                    spawnRandomItems();
+                    updateEnemyPosition(delta);
+                    updateRandomItemPosition();
+                    updateLaserPosition();
+                }
+
                 world.getPlayer().update(delta);
                 world.getPlayer().getVelocity().scl(DAMP);
             } else {
@@ -162,13 +168,16 @@ public class WorldController {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             world.getPlayer().getAcceleration().x = -ACCELERATION;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && TimeUtils.nanoTime() - lastProjectileSpawnTime > PROJECTILE_SPAWN_RATE_COMPARATOR) {
-            ShootSound.sound.play();
-            spawnProjectile();
-        }
         if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.UP) &&
                 !Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             world.getPlayer().clearAcceleration();
+        }
+
+        if (!IS_DEBUG) {
+            if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && TimeUtils.nanoTime() - lastProjectileSpawnTime > PROJECTILE_SPAWN_RATE_COMPARATOR) {
+                ShootSound.sound.play();
+                spawnProjectile();
+            }
         }
     }
 
