@@ -120,7 +120,7 @@ public class SpaceShip implements RenderAble {
     public void update(float delta) {
         acceleration.scl(delta);
         velocity.add(acceleration.x, acceleration.y);
-        velocity.scl(delta);
+        velocity.scl(delta * 0.95f);
         Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
         rectangle.x += velocity.x;
         if (rectangle.x < 0) {

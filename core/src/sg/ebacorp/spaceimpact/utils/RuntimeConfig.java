@@ -33,8 +33,8 @@ public class RuntimeConfig {
         if (RuntimeConfig.instance == null) {
             RuntimeConfig.instance =
                     new RuntimeConfig(
-                            1024,
-                            576,
+                            1280,
+                            720,
                             60,
                             true,
                             true,

@@ -156,6 +156,7 @@ public class WorldController {
     }
 
     private void processInputs() {
+        // WASD Movement
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             world.getPlayer().getAcceleration().y = ACCELERATION;
         }
@@ -171,6 +172,11 @@ public class WorldController {
         if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.UP) &&
                 !Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             world.getPlayer().clearAcceleration();
+        }
+
+        // Jump
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            world.getPlayer().getAcceleration().y = +ACCELERATION;
         }
 
         if (!IS_DEBUG) {
