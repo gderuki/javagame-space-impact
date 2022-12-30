@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class SpaceShip implements RenderAble {
+    public static final int JUMP_SPEED = 7;
     private static Texture image;
 
     static {
@@ -17,8 +18,6 @@ public class SpaceShip implements RenderAble {
     private Vector2 positionBeforeJump = new Vector2();
 
     private Vector2 acceleration = new Vector2();
-
-    private Vector2 jumpAcceleration = new Vector2();
 
     private Vector2 velocity = new Vector2();
 
@@ -124,12 +123,13 @@ public class SpaceShip implements RenderAble {
     private boolean jumping = false;
 
     // FIXME
-    public void jump(float acceleration) {
+    public void jump() {
         if (velocity.y != 0) {
+            jumping = true;
             if (velocity.y < 0) {
-                this.acceleration.y = -acceleration * 2;
+                this.velocity.y = -JUMP_SPEED;
             } else {
-                this.acceleration.y = acceleration * 2;
+                this.velocity.y = JUMP_SPEED;
             }
         }
         positionBeforeJump.x = position.x;
