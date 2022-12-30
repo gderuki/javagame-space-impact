@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class SpaceShip implements RenderAble {
     public static final int JUMP_SPEED = 7;
@@ -121,6 +122,7 @@ public class SpaceShip implements RenderAble {
     }
 
     private boolean jumping = false;
+    long jumpStateTime = 0;
 
     // FIXME
     public void jump() {
@@ -131,12 +133,19 @@ public class SpaceShip implements RenderAble {
             } else {
                 this.velocity.y = JUMP_SPEED;
             }
+            jumpStateTime = TimeUtils.millis();
         }
         positionBeforeJump.x = position.x;
         positionBeforeJump.y = position.y;
     }
 
     public void update(float delta, float damp) {
+        if (jumpStateTime > 0) {
+            if (TimeUtils.millis() - jumpStateTime > 2000) {
+                velocity.set(positionBeforeJump.sub(position).nor().scl(JUMP_SPEED));
+                jumpStateTime = 0;
+            }
+        }
         acceleration.scl(delta);
         velocity.add(acceleration.x, acceleration.y);
         velocity.scl(delta);
