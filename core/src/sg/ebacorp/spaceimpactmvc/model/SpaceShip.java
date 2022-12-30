@@ -127,9 +127,9 @@ public class SpaceShip implements RenderAble {
     public void jump(float acceleration) {
         if (velocity.y != 0) {
             if (velocity.y < 0) {
-                jumpAcceleration.y = -acceleration * 2;
+                this.acceleration.y = -acceleration * 2;
             } else {
-                jumpAcceleration.y = acceleration * 2;
+                this.acceleration.y = acceleration * 2;
             }
         }
         positionBeforeJump.x = position.x;
@@ -138,12 +138,7 @@ public class SpaceShip implements RenderAble {
 
     public void update(float delta, float damp) {
         acceleration.scl(delta);
-        if (jumpAcceleration.y != 0) {
-            Vector2 copyScaled = jumpAcceleration.cpy().scl(delta);
-            velocity.add(acceleration.x, copyScaled.y);
-        } else {
-            velocity.add(acceleration.x, acceleration.y);
-        }
+        velocity.add(acceleration.x, acceleration.y);
         velocity.scl(delta);
         Rectangle rectangle = new Rectangle(position.x, position.y, bounds.width, bounds.height);
         rectangle.x += velocity.x;
@@ -162,14 +157,7 @@ public class SpaceShip implements RenderAble {
         }
         position.add(velocity);
         velocity.scl(1 / delta);
-        if (jumpAcceleration.y != 0) {
-            if (position.dst(positionBeforeJump) > 2) {
-                jumpAcceleration.y = 0;
-                velocity.y = 0;
-            }
-        } else {
-            velocity.scl(damp);
-        }
+        velocity.scl(damp);
     }
 
 }

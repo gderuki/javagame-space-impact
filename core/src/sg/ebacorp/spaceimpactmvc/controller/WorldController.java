@@ -168,15 +168,14 @@ public class WorldController {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             world.getPlayer().getAcceleration().x = -ACCELERATION;
         }
-        if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.UP) &&
-                !Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            world.getPlayer().clearAcceleration();
-        }
-
         // Jump
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             world.getPlayer().jump(ACCELERATION);
 
+        }
+        if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.UP) &&
+                !Gdx.input.isKeyPressed(Input.Keys.DOWN) && !Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            world.getPlayer().clearAcceleration();
         }
 
         if (!IS_DEBUG) {
