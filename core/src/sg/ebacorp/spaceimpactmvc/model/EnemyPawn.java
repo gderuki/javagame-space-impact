@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public class Enemy implements RenderAble, Collidable {
+public class EnemyPawn implements RenderAble, Collidable {
 
     public static final int ENEMY_ACCELERATION = 0;
     public static final int ENEMY_VELOCITY = -1;
@@ -21,7 +21,7 @@ public class Enemy implements RenderAble, Collidable {
     private Vector2 velocity;
     private Vector2 acceleration;
 
-    public Enemy(float x, float y) {
+    public EnemyPawn(float x, float y) {
         position = new Vector2(x, y);
         bounds = new Rectangle();
         bounds.setWidth(1.25f);

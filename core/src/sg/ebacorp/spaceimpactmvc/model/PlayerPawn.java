@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public class SpaceShip implements RenderAble {
+public class PlayerPawn implements RenderAble {
     private static Texture image;
 
     static {
@@ -26,7 +26,7 @@ public class SpaceShip implements RenderAble {
 
     int xray;
 
-    public SpaceShip() {
+    public PlayerPawn() {
         init();
     }
 

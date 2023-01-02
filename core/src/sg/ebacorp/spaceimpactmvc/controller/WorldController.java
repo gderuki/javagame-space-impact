@@ -9,13 +9,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
-import sg.ebacorp.spaceimpactmvc.model.Enemy;
+import sg.ebacorp.spaceimpactmvc.model.EnemyPawn;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
 import sg.ebacorp.spaceimpactmvc.model.ShootSound;
 import sg.ebacorp.spaceimpactmvc.model.World;
-
-import static sg.ebacorp.spaceimpactmvc.view.WorldView.camera;
 
 public class WorldController {
     private static final float DAMP = 0.97f;
@@ -63,23 +61,23 @@ public class WorldController {
     }
 
     private void resolveCollisions() {
-        ArrayList<Enemy> enemies = new ArrayList<>(world.getEnemies());
+        ArrayList<EnemyPawn> enemies = new ArrayList<>(world.getEnemies());
         for (int i = 0; i < enemies.size(); i++) {
-            Enemy enemy = enemies.get(i);
+            EnemyPawn enemyPawn = enemies.get(i);
             for (int y = i + 1; y < enemies.size(); y++) {
-                Enemy enemy2 = enemies.get(y);
-                if (enemy.getPositionAsRectangle().overlaps(enemy2.getPositionAsRectangle())) {
+                EnemyPawn enemyPawn2 = enemies.get(y);
+                if (enemyPawn.getPositionAsRectangle().overlaps(enemyPawn2.getPositionAsRectangle())) {
                     // get vector and normalize
-                    Vector2 collisionNormal = enemy.getCentralPosition().sub(enemy2.getCentralPosition()).nor();
+                    Vector2 collisionNormal = enemyPawn.getCentralPosition().sub(enemyPawn2.getCentralPosition()).nor();
                     // get relative velocity of 2 enemies
-                    Vector2 relativeVelocity = enemy.getVelocity().cpy().sub(enemy2.getVelocity());
+                    Vector2 relativeVelocity = enemyPawn.getVelocity().cpy().sub(enemyPawn2.getVelocity());
                     // project relativeVelocity on collision normal
                     float dotProduct = collisionNormal.dot(relativeVelocity);
                     float newDotProduct = -dotProduct;
                     // convert scalar to vector
                     Vector2 separationVelocity = collisionNormal.scl(newDotProduct);
-                    enemy.getVelocity().add(separationVelocity);
-                    enemy2.getVelocity().add(separationVelocity.scl(-1));
+                    enemyPawn.getVelocity().add(separationVelocity);
+                    enemyPawn2.getVelocity().add(separationVelocity.scl(-1));
                 }
             }
 
@@ -130,29 +128,29 @@ public class WorldController {
         while (laserIterator.hasNext()) {
             Laser laser = laserIterator.next();
             laser.getPosition().x += LASER_SPEED * Gdx.graphics.getDeltaTime();
-            for (Enemy enemy : world.getEnemies()) {
-                if (enemy.getPositionAsRectangle().overlaps(laser.getPositionAsRectangle())) {
+            for (EnemyPawn enemyPawn : world.getEnemies()) {
+                if (enemyPawn.getPositionAsRectangle().overlaps(laser.getPositionAsRectangle())) {
                     world.getPlayer().scoreUp();
                     laserIterator.remove();
-                    enemy.getAcceleration().y = ENEMY_DAMAGED_GRAVITY;
+                    enemyPawn.getAcceleration().y = ENEMY_DAMAGED_GRAVITY;
                 }
             }
         }
     }
 
     private void updateEnemyPosition(float delta) {
-        Iterator<Enemy> iterator = world.getEnemies().iterator();
+        Iterator<EnemyPawn> iterator = world.getEnemies().iterator();
         while (iterator.hasNext()) {
-            Enemy enemy = iterator.next();
-            enemy.update(delta);
-            if (enemy.getPosition().x + enemy.getBounds().width < 0 || enemy.getPosition().y + enemy.getBounds().height < 0) {
+            EnemyPawn enemyPawn = iterator.next();
+            enemyPawn.update(delta);
+            if (enemyPawn.getPosition().x + enemyPawn.getBounds().width < 0 || enemyPawn.getPosition().y + enemyPawn.getBounds().height < 0) {
                 iterator.remove();
             }
-            // enemy is closer than 3 game units we should enable acceleration
-//            if (enemy.getPosition().dst(world.getPlayer().getPosition()) < 3) {
-//                enemy.getAcceleration().x = CHASE_ACCELERATION;
+            // enemyPawn is closer than 3 game units we should enable acceleration
+//            if (enemyPawn.getPosition().dst(world.getPlayer().getPosition()) < 3) {
+//                enemyPawn.getAcceleration().x = CHASE_ACCELERATION;
 //            }
-            if (enemy.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
+            if (enemyPawn.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
                 world.getPlayer().liveDown();
                 iterator.remove();
             }

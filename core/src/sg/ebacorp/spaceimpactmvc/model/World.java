@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.badlogic.gdx.scenes.scene2d.ui.List;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
 
 public class World {
 
     ExecutionState executionState = ExecutionState.NONE;
 
-    private SpaceShip spaceShip;
-    private Set<Enemy> enemies;
+    private PlayerPawn playerPawn;
+    private Set<EnemyPawn> enemies;
     private Set<Laser> lasers;
     private Set<RandomPickup> randomPickups;
 
@@ -21,22 +20,22 @@ public class World {
     }
 
     private void createWorld() {
-        this.spaceShip = new SpaceShip();
+        this.playerPawn = new PlayerPawn();
         this.enemies = new HashSet<>();
         this.lasers = new HashSet<>();
         this.randomPickups = new HashSet<>();
     }
 
-    public SpaceShip getPlayer() {
-        return spaceShip;
+    public PlayerPawn getPlayer() {
+        return playerPawn;
     }
 
     public void spawnEnemy(float x, float y) {
-        Enemy enemy = new Enemy(x, y);
-        enemies.add(enemy);
+        EnemyPawn enemyPawn = new EnemyPawn(x, y);
+        enemies.add(enemyPawn);
     }
 
-    public Set<Enemy> getEnemies() {
+    public Set<EnemyPawn> getEnemies() {
         return enemies;
     }
 
@@ -62,7 +61,7 @@ public class World {
         enemies.clear();
         lasers.clear();
         randomPickups.clear();
-        spaceShip.init();
+        playerPawn.init();
     }
 
     public void start() {
@@ -75,7 +74,7 @@ public class World {
 
     public ArrayList<RenderAble> getAllRenderAbles() {
         ArrayList<RenderAble> result = new ArrayList<>();
-        result.add(spaceShip);
+        result.add(playerPawn);
         result.addAll(enemies);
         result.addAll(lasers);
         result.addAll(randomPickups);
