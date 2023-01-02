@@ -2,10 +2,11 @@ package sg.ebacorp.spaceimpactmvc.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public class Enemy implements RenderAble {
+public class Enemy implements RenderAble, Collidable {
 
     public static final int ENEMY_ACCELERATION = 0;
     public static final int ENEMY_VELOCITY = -1;
@@ -26,7 +27,7 @@ public class Enemy implements RenderAble {
         bounds.setWidth(1.25f);
         bounds.setHeight(1f);
         acceleration = new Vector2(ENEMY_ACCELERATION, 0);
-        velocity = new Vector2(ENEMY_VELOCITY, 0);
+        velocity = new Vector2(MathUtils.random(-3, -1), 0);
     }
 
     @Override
@@ -37,6 +38,17 @@ public class Enemy implements RenderAble {
     @Override
     public Vector2 getPosition() {
         return position;
+    }
+
+    @Override
+    public Vector2 getCentralPosition() {
+        return new Vector2(position.x / bounds.width, position.y / bounds.height);
+    }
+
+    @Override
+    public Vector2 getVelocity() {
+        return velocity;
+
     }
 
     public Rectangle getPositionAsRectangle() {

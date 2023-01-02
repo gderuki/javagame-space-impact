@@ -1,10 +1,12 @@
 package sg.ebacorp.spaceimpactmvc.controller;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
 import sg.ebacorp.spaceimpactmvc.model.Enemy;
@@ -43,6 +45,7 @@ public class WorldController {
             if (world.getPlayer().alive()) {
                 processInputs();
                 updateEnemyPosition(delta);
+                resolveCollisions(delta);
                 updateRandomItemPosition();
                 spawnEnemies();
                 spawnRandomItems();
@@ -54,6 +57,30 @@ public class WorldController {
                     world.reset();
                 }
             }
+        }
+    }
+
+    private void resolveCollisions(float delta) {
+        ArrayList<Enemy> enemies = new ArrayList(world.getEnemies());
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            for (int y = i + 1; y < enemies.size(); y++) {
+                Enemy enemy2 = enemies.get(y);
+                if (enemy.getPositionAsRectangle().overlaps(enemy2.getPositionAsRectangle())) {
+                    // get vector and normalize
+                    Vector2 collisionNormal = enemy.getCentralPosition().sub(enemy2.getCentralPosition()).nor();
+                    // get relative velocity of 2 enemies
+                    Vector2 relativeVelocity = enemy.getVelocity().cpy().sub(enemy2.getVelocity());
+                    // project relativeVelocity on collision normal
+                    float dotProduct = collisionNormal.dot(relativeVelocity);
+                    float newDotProduct = -dotProduct;
+                    // convert scalar to vector
+                    Vector2 separationVelocity = collisionNormal.scl(newDotProduct);
+                    enemy.getVelocity().add(separationVelocity);
+                    enemy2.getVelocity().add(separationVelocity.scl(-1));
+                }
+            }
+
         }
     }
 
@@ -122,9 +149,9 @@ public class WorldController {
                 iterator.remove();
             }
             // enemy is closer than 3 game units we should enable acceleration
-            if (enemy.getPosition().dst(world.getPlayer().getPosition()) < 3) {
-                enemy.getAcceleration().x = CHASE_ACCELERATION;
-            }
+//            if (enemy.getPosition().dst(world.getPlayer().getPosition()) < 3) {
+//                enemy.getAcceleration().x = CHASE_ACCELERATION;
+//            }
             if (enemy.getPositionAsRectangle().overlaps(world.getPlayer().getPositionAsRectangle())) {
                 world.getPlayer().liveDown();
                 iterator.remove();
