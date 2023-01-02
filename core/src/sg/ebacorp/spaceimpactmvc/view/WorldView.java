@@ -3,6 +3,7 @@ package sg.ebacorp.spaceimpactmvc.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -14,20 +15,28 @@ import sg.ebacorp.spaceimpactmvc.model.XRay;
 
 public class WorldView {
 
-    public static float CAMERA_WIDTH = 10f;
-    public static float CAMERA_HEIGHT = 7f;
+    public static float CAMERA_WIDTH = 16f;
+    public static float CAMERA_HEIGHT = 9f;
 
     private World world;
-    public OrthographicCamera cam;
+    public static OrthographicCamera camera;
     private SpriteBatch batch;
     private BitmapFont font;
     private float ppuX;
     private float ppuY;
 
+    Texture backgroundImage;
+
     public WorldView(World world) {
         this.world = world;
-        this.cam = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
-        SetCamera(CAMERA_WIDTH / 2f, CAMERA_HEIGHT / 2f);
+        camera = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
+        camera.position.set(0, CAMERA_HEIGHT / 2, 0);
+        camera.update(); // fun fact: camera update must be called each time we change any of its properties
+        // This will work once we fix `batch.setProjectionMatrix(camera)`.
+//        camera.zoom += 50.0f;
+
+        backgroundImage = new Texture(Gdx.files.internal("bg_debug.png"));
+
         batch = new SpriteBatch();
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("pixelfont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -42,22 +51,20 @@ public class WorldView {
         font = font24;
     }
 
-    public void SetCamera(float x, float y) {
-        this.cam.position.set(x, y, 0);
-        this.cam.update();
-    }
-
     public void render() {
         batch.begin();
         if (world.getState() == ExecutionState.NONE) {
             printWelcome();
         } else {
             if (world.getPlayer().getLives() > 0) {
-                //render all renderables
+                drawDebugMarkers();
+
+                // render all renderables
                 for (RenderAble renderAble : world.getAllRenderAbles()) {
                     batch.draw(renderAble.getTexture(), renderAble.getPosition().x * ppuX, renderAble.getPosition().y * ppuY,
                             renderAble.getBounds().width * ppuX, renderAble.getBounds().height * ppuY);
                 }
+
                 renderUI();
             } else {
                 printGameOver();
@@ -66,12 +73,23 @@ public class WorldView {
         batch.end();
     }
 
+    private void drawDebugMarkers() {
+        // corners
+        batch.draw(backgroundImage, 0,0);
+        batch.draw(backgroundImage, 1280-128,720-128);
+        batch.draw(backgroundImage, 1280-128, 0);
+        batch.draw(backgroundImage, 0, 720-128);
+
+        // centraal ALAAAAAA
+        batch.draw(backgroundImage, 640-64, 360-64);
+    }
+
     private void printWelcome() {
-        font.getData().setScale(0.94f);
-        font.draw(batch, "SPACE IMPACT", 40, 128);
-        font.getData().setScale(0.5f);
+//        font.getData().setScale(0.94f);
+//        font.draw(batch, "SPACE IMPACT", 40, 128);
+//        font.getData().setScale(0.5f);
         font.draw(batch, "Press [SPACE] to START", 40, 64);
-        font.getData().setScale(0.94f);
+//        font.getData().setScale(0.94f);
     }
 
     private void printGameOver() {
@@ -87,14 +105,14 @@ public class WorldView {
         if (world.getPlayer().getLives() > 0) {
             int lives = world.getPlayer().getLives();
             for (int i = 0; i < lives && i < 5; i++) {
-                batch.draw(Live.texture, ppuX * i, 6 * ppuY);
+                batch.draw(Live.texture, ppuX * i + 16, 8 * ppuY);
             }
         }
-        font.draw(batch, String.format("%05d", world.getPlayer().getScore()), 6 * ppuX, 6.9f * ppuY);
-        if (world.getPlayer().getXray() > 0) {
-            batch.draw(XRay.xRayImage, 4 * ppuX, 6 * ppuY);
-            font.draw(batch, String.valueOf(world.getPlayer().getXray()), 5 * ppuX, 6.9f * ppuY);
-        }
+        font.draw(batch, String.format("%05d", world.getPlayer().getScore()), 12 * ppuX, 9 * ppuY-16);
+//        if (world.getPlayer().getXray() > 0) {
+//            batch.draw(XRay.xRayImage, 4 * ppuX, 6 * ppuY);
+//            font.draw(batch, String.valueOf(world.getPlayer().getXray()), 5 * ppuX, 6.9f * ppuY);
+//        }
     }
 
     public void setSize(int width, int height) {

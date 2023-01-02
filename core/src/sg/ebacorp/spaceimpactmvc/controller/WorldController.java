@@ -15,6 +15,8 @@ import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
 import sg.ebacorp.spaceimpactmvc.model.ShootSound;
 import sg.ebacorp.spaceimpactmvc.model.World;
 
+import static sg.ebacorp.spaceimpactmvc.view.WorldView.camera;
+
 public class WorldController {
     private static final float DAMP = 0.97f;
     private static final float ACCELERATION = 20f;
@@ -45,7 +47,7 @@ public class WorldController {
             if (world.getPlayer().alive()) {
                 processInputs();
                 updateEnemyPosition(delta);
-                resolveCollisions(delta);
+                resolveCollisions();
                 updateRandomItemPosition();
                 spawnEnemies();
                 spawnRandomItems();
@@ -60,8 +62,8 @@ public class WorldController {
         }
     }
 
-    private void resolveCollisions(float delta) {
-        ArrayList<Enemy> enemies = new ArrayList(world.getEnemies());
+    private void resolveCollisions() {
+        ArrayList<Enemy> enemies = new ArrayList<>(world.getEnemies());
         for (int i = 0; i < enemies.size(); i++) {
             Enemy enemy = enemies.get(i);
             for (int y = i + 1; y < enemies.size(); y++) {
@@ -128,9 +130,7 @@ public class WorldController {
         while (laserIterator.hasNext()) {
             Laser laser = laserIterator.next();
             laser.getPosition().x += LASER_SPEED * Gdx.graphics.getDeltaTime();
-            Iterator<Enemy> enemyIterator = world.getEnemies().iterator();
-            while (enemyIterator.hasNext()) {
-                Enemy enemy = enemyIterator.next();
+            for (Enemy enemy : world.getEnemies()) {
                 if (enemy.getPositionAsRectangle().overlaps(laser.getPositionAsRectangle())) {
                     world.getPlayer().scoreUp();
                     laserIterator.remove();
@@ -164,7 +164,7 @@ public class WorldController {
         if (TimeUtils.millis() - lastRandomItemSpawnTime > MathUtils.random(10000, 60000)) {
             float y = MathUtils.random(1f, 5f);
             lastRandomItemSpawnTime = TimeUtils.millis();
-            world.spawnRandomItem(11, y);
+            world.spawnRandomItem(15, y);
         }
     }
 
@@ -172,7 +172,7 @@ public class WorldController {
         if (TimeUtils.millis() - lastEnemySpawnTime > MathUtils.random(1000, 10000)) {
             float y = MathUtils.random(1f, 5f);
             lastEnemySpawnTime = TimeUtils.millis();
-            world.spawnEnemy(11, y);
+            world.spawnEnemy(15, y);
         }
     }
 
@@ -193,8 +193,11 @@ public class WorldController {
             ShootSound.sound.play();
             spawnProjectile();
         }
-        if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.UP) &&
-                !Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT)
+                    && !Gdx.input.isKeyPressed(Input.Keys.LEFT)
+                    && !Gdx.input.isKeyPressed(Input.Keys.UP)
+                    && !Gdx.input.isKeyPressed(Input.Keys.DOWN)
+        ) {
             world.getPlayer().clearAcceleration();
         }
     }

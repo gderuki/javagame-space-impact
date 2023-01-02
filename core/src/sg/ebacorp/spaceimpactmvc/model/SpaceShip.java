@@ -102,7 +102,7 @@ public class SpaceShip implements RenderAble {
         score = 0;
         xray = 0;
         position = new Vector2(1, 1);
-        bounds = new Rectangle(position.x, position.y, 1.25f, 1.0f);
+        bounds = new Rectangle(position.x, position.y, 1.5f, 1.0f);
     }
 
     public void clearAcceleration() {
@@ -126,14 +126,14 @@ public class SpaceShip implements RenderAble {
         if (rectangle.x < 0) {
             velocity.x = Math.abs(velocity.x);
         }
-        if (rectangle.x > 9) {
+        if (rectangle.x > 15) {
             velocity.x = -velocity.x;
         }
         rectangle.y += velocity.y;
         if (rectangle.y < 0) {
             velocity.y = Math.abs((velocity.y));
         }
-        if (rectangle.y > 5) {
+        if (rectangle.y > 8) {
             velocity.y = -velocity.y;
         }
         position.add(velocity);
