@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.badlogic.gdx.math.Vector2;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
+import sg.ebacorp.spaceimpactmvc.NewScreen;
 
 public class World {
 
     ExecutionState executionState = ExecutionState.NONE;
 
     private PlayerPawn playerPawn;
+    private EnemyPawnPolygon enemyPawnPoligon;
     private Set<EnemyPawn> enemies;
     private Set<Laser> lasers;
     private Set<RandomPickup> randomPickups;
@@ -20,6 +23,7 @@ public class World {
     }
 
     private void createWorld() {
+        this.enemyPawnPoligon = new EnemyPawnPolygon(new Vector2(500f, 500f));
         this.playerPawn = new PlayerPawn();
         this.enemies = new HashSet<>();
         this.lasers = new HashSet<>();
@@ -29,6 +33,7 @@ public class World {
     public PlayerPawn getPlayer() {
         return playerPawn;
     }
+
 
     public void spawnEnemy(float x, float y) {
         EnemyPawn enemyPawn = new EnemyPawn(x, y);
@@ -75,7 +80,7 @@ public class World {
     public ArrayList<RenderAble> getAllRenderAbles() {
         ArrayList<RenderAble> result = new ArrayList<>();
         result.add(playerPawn);
-        result.addAll(enemies);
+//        result.addAll(enemies);
         result.addAll(lasers);
         result.addAll(randomPickups);
         return result;
