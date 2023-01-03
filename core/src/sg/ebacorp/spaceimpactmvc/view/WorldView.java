@@ -3,49 +3,46 @@ package sg.ebacorp.spaceimpactmvc.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.PolygonRegion;
-import com.badlogic.gdx.graphics.g2d.PolygonSprite;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.EarClippingTriangulator;
-import com.badlogic.gdx.utils.ShortArray;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
 import sg.ebacorp.spaceimpactmvc.model.EnemyPawn;
 import sg.ebacorp.spaceimpactmvc.model.Live;
 import sg.ebacorp.spaceimpactmvc.model.RenderAble;
 import sg.ebacorp.spaceimpactmvc.model.World;
-import sg.ebacorp.spaceimpactmvc.model.XRay;
 
 public class WorldView {
 
-    public static float CAMERA_WIDTH = 16f;
-    public static float CAMERA_HEIGHT = 9f;
+    public static float VIEWPORT_WIDTH_RATIO = 16f;
+    public static float VIEWPORT_HEIGHT_RATIO = 9f;
 
-    private World world;
+    public static float VIEWPORT_WIDTH_ABS = 1280;
+    public static float VIEWPORT_HEIGHT_ABS = 720;
+
+    private final World world;
+    public static OrthographicCamera playerCamera;
+    public static SpriteBatch batch;
+    private final BitmapFont font;
+    public static float ppuX;
+    public static float ppuY;
     public static OrthographicCamera camera;
-    private SpriteBatch batch;
-    private BitmapFont font;
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private PolygonSpriteBatch polygonSpriteBatch = new PolygonSpriteBatch();
 
-    private float ppuX;
-    private float ppuY;
 
     Texture backgroundImage;
 
     public WorldView(World world) {
         this.world = world;
-        camera = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
-        camera.position.set(0, CAMERA_HEIGHT / 2, 0);
-        camera.update(); // fun fact: camera update must be called each time we change any of its properties
-        // This will work once we fix `batch.setProjectionMatrix(camera)`.
-//        camera.zoom += 50.0f;
+        playerCamera = new OrthographicCamera(VIEWPORT_WIDTH_ABS, VIEWPORT_HEIGHT_ABS);
+        playerCamera.position.x = VIEWPORT_WIDTH_ABS / 2;
+        playerCamera.position.y = VIEWPORT_HEIGHT_ABS / 2;
+        playerCamera.zoom = 0.75f;
+        playerCamera.update();
 
         backgroundImage = new Texture(Gdx.files.internal("bg_debug.png"));
 
@@ -114,13 +111,13 @@ public class WorldView {
 
     private void drawDebugMarkers() {
         // corners
-        batch.draw(backgroundImage, 0,0);
-        batch.draw(backgroundImage, 1280-128,720-128);
-        batch.draw(backgroundImage, 1280-128, 0);
-        batch.draw(backgroundImage, 0, 720-128);
+        batch.draw(backgroundImage, 0, 0);
+        batch.draw(backgroundImage, 1280 - 128, 720 - 128);
+        batch.draw(backgroundImage, 1280 - 128, 0);
+        batch.draw(backgroundImage, 0, 720 - 128);
 
         // centraal ALAAAAAA
-        batch.draw(backgroundImage, 640-64, 360-64);
+        batch.draw(backgroundImage, 640 - 64, 360 - 64);
     }
 
     private void printWelcome() {
@@ -147,7 +144,7 @@ public class WorldView {
                 batch.draw(Live.texture, ppuX * i + 16, 8 * ppuY);
             }
         }
-        font.draw(batch, String.format("%05d", world.getPlayer().getScore()), 12 * ppuX, 9 * ppuY-16);
+        font.draw(batch, String.format("%05d", world.getPlayer().getScore()), 12 * ppuX, 9 * ppuY - 16);
 //        if (world.getPlayer().getXray() > 0) {
 //            batch.draw(XRay.xRayImage, 4 * ppuX, 6 * ppuY);
 //            font.draw(batch, String.valueOf(world.getPlayer().getXray()), 5 * ppuX, 6.9f * ppuY);
@@ -155,7 +152,7 @@ public class WorldView {
     }
 
     public void setSize(int width, int height) {
-        ppuX = (float) width / CAMERA_WIDTH;
-        ppuY = (float) height / CAMERA_HEIGHT;
+        ppuX = (float) width / VIEWPORT_WIDTH_RATIO;
+        ppuY = (float) height / VIEWPORT_HEIGHT_RATIO;
     }
 }
