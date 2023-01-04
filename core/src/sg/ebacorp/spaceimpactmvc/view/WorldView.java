@@ -41,7 +41,7 @@ public class WorldView {
         playerCamera = new OrthographicCamera(VIEWPORT_WIDTH_ABS, VIEWPORT_HEIGHT_ABS);
         playerCamera.position.x = VIEWPORT_WIDTH_ABS / 2;
         playerCamera.position.y = VIEWPORT_HEIGHT_ABS / 2;
-        playerCamera.zoom = 0.75f;
+        playerCamera.zoom = 0.95f;
         playerCamera.update();
 
         backgroundImage = new Texture(Gdx.files.internal("bg_debug.png"));
@@ -83,7 +83,7 @@ public class WorldView {
 //        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 //        shapeRenderer.setColor(0, 1, 0 ,1);
 //        shapeRenderer.polygon(world.getEnemyPawnPoligon().getVertices().toArray());
-        camera.update();
+        playerCamera.update();
         //polygonSpriteBatch.setProjectionMatrix(camera.combined);
         polygonSpriteBatch.begin();
 //        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGB565);
