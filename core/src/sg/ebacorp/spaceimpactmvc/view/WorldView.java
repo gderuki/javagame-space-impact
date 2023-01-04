@@ -86,6 +86,7 @@ public class WorldView {
         playerCamera.update();
         //polygonSpriteBatch.setProjectionMatrix(camera.combined);
         polygonSpriteBatch.begin();
+        polygonSpriteBatch.setProjectionMatrix(playerCamera.combined);
 //        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGB565);
 //        pixmap.setColor(1, 0, 0, 1);
 //        pixmap.fill();
