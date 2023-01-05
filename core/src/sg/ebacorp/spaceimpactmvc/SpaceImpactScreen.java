@@ -3,6 +3,7 @@ package sg.ebacorp.spaceimpactmvc;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import sg.ebacorp.spaceimpactmvc.controller.WorldController;
 import sg.ebacorp.spaceimpactmvc.model.World;
@@ -31,13 +32,12 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
     public void render(float delta) {
         ScreenUtils.clear(0.698f, 0.741f, 0.31f, 1);
 
+        worldController.update(delta);
         // Works only if called here
         playerCamera.position.x = world.getPlayer().getPosition().x * ppuX;
         playerCamera.position.y = world.getPlayer().getPosition().y * ppuY;
         playerCamera.update();
         batch.setProjectionMatrix(playerCamera.combined);
-
-        worldController.update(delta);
         worldView.render();
     }
 
