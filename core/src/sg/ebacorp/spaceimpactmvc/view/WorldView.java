@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
+import sg.ebacorp.spaceimpactmvc.model.Asteroid;
 import sg.ebacorp.spaceimpactmvc.model.EnemyPawn;
 import sg.ebacorp.spaceimpactmvc.model.Live;
 import sg.ebacorp.spaceimpactmvc.model.RenderAble;
@@ -80,34 +81,13 @@ public class WorldView {
             }
         }
         batch.end();
-//        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-//        shapeRenderer.setColor(0, 1, 0 ,1);
-//        shapeRenderer.polygon(world.getEnemyPawnPoligon().getVertices().toArray());
         playerCamera.update();
-        //polygonSpriteBatch.setProjectionMatrix(camera.combined);
         polygonSpriteBatch.begin();
         polygonSpriteBatch.setProjectionMatrix(playerCamera.combined);
-//        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGB565);
-//        pixmap.setColor(1, 0, 0, 1);
-//        pixmap.fill();
-        //Texture texture = new Texture(pixmap);
-//        TextureRegion textureRegion = new TextureRegion(world.getEnemyPawnPoligon().getTexture());
-//        //TextureRegion textureRegion = new TextureRegion(texture);
-//
-//        EarClippingTriangulator earClippingTriangulator = new EarClippingTriangulator();
-//        ShortArray triangles = earClippingTriangulator.computeTriangles(world.getEnemyPawnPoligon().getVertices().toArray());
-//        PolygonRegion polygonRegion = new PolygonRegion (textureRegion, world.getEnemyPawnPoligon().getVertices().toArray(), triangles.toArray());
-//        PolygonSprite polygonSprite = new PolygonSprite(polygonRegion);
-////        polygonSprite.setOrigin(world.getEnemyPawnPoligon().getPosition().x + 10 / 2, world.getEnemyPawnPoligon().getPosition().y + 7 / 2);
-//        polygonSprite.draw(polygonSpriteBatch);
-//        world.getHexagon().draw(polygonSpriteBatch);
-        for (EnemyPawn enemy : world.getEnemies()) {
-            enemy.draw(polygonSpriteBatch, ppuX, ppuY);
+        for (Asteroid asteroid : world.getAsteroids()) {
+            asteroid.draw(polygonSpriteBatch, ppuX, ppuY);
         }
         polygonSpriteBatch.end();
-
-        //shapeRenderer.end();
-
     }
 
     private void drawDebugMarkers() {

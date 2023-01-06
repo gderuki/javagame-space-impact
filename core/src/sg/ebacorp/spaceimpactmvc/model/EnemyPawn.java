@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.ebacorp.spaceimpactmvc.NewScreen;
 
-public class EnemyPawn implements RenderAble, Collidable, PolygonRenderAble {
+public class EnemyPawn implements RenderAble, Collidable {
 
     public static final int ENEMY_ACCELERATION = 0;
     public static final int ENEMY_VELOCITY = -1;
@@ -31,7 +31,6 @@ public class EnemyPawn implements RenderAble, Collidable, PolygonRenderAble {
         bounds.setHeight(1f);
         acceleration = new Vector2(ENEMY_ACCELERATION, 0);
         velocity = new Vector2(MathUtils.random(-3, -1), 0);
-        hexagon = new NewScreen.Hexagon(new Vector2(position.x * 50, position.y * 50));
     }
 
     @Override
@@ -69,18 +68,11 @@ public class EnemyPawn implements RenderAble, Collidable, PolygonRenderAble {
     }
 
     public void update(float delta) {
-        hexagon.update(position);
-        hexagon.setAngle(delta);
         acceleration.scl(delta);
         velocity.add(acceleration.x, acceleration.y);
         velocity.scl(delta);
         position.add(velocity);
         velocity.scl(1 / delta);
         acceleration.scl(1 / delta);
-    }
-
-    @Override
-    public void draw(PolygonSpriteBatch pSB, float ppuX, float ppuY) {
-        hexagon.draw(pSB, ppuX, ppuY);
     }
 }

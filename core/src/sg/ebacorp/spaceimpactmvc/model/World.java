@@ -15,6 +15,7 @@ public class World {
     private PlayerPawn playerPawn;
     private EnemyPawnPolygon enemyPawnPoligon;
     private Set<EnemyPawn> enemies;
+    private Set<Asteroid> asteroids;
     private Set<Laser> lasers;
     private Set<RandomPickup> randomPickups;
 
@@ -28,16 +29,21 @@ public class World {
         this.enemies = new HashSet<>();
         this.lasers = new HashSet<>();
         this.randomPickups = new HashSet<>();
+        this.asteroids = new HashSet<>();
     }
 
     public PlayerPawn getPlayer() {
         return playerPawn;
     }
 
-
     public void spawnEnemy(float x, float y) {
         EnemyPawn enemyPawn = new EnemyPawn(x, y);
         enemies.add(enemyPawn);
+    }
+
+    public void spawnAsteroid(float x, float y) {
+        Asteroid asteroid = new Asteroid(x, y);
+        asteroids.add(asteroid);
     }
 
     public Set<EnemyPawn> getEnemies() {
@@ -80,9 +86,13 @@ public class World {
     public ArrayList<RenderAble> getAllRenderAbles() {
         ArrayList<RenderAble> result = new ArrayList<>();
         result.add(playerPawn);
-//        result.addAll(enemies);
+        result.addAll(enemies);
         result.addAll(lasers);
         result.addAll(randomPickups);
         return result;
+    }
+
+    public Set<Asteroid> getAsteroids() {
+        return asteroids;
     }
 }

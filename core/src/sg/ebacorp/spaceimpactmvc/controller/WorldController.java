@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
+import sg.ebacorp.spaceimpactmvc.model.Asteroid;
 import sg.ebacorp.spaceimpactmvc.model.EnemyPawn;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
@@ -27,6 +28,7 @@ public class WorldController {
     long lastEnemySpawnTime = TimeUtils.millis();
     long lastRandomItemSpawnTime = TimeUtils.millis();
     long lastProjectileSpawnTime = TimeUtils.millis();
+    long lastAsteroidSpawnTime = TimeUtils.millis();
 
     public WorldController(World world) {
         this.world = world;
@@ -45,10 +47,12 @@ public class WorldController {
             if (world.getPlayer().alive()) {
                 processInputs();
                 updateEnemyPosition(delta);
+                updateAsteroidPosition(delta);
                 resolveCollisions();
                 updateRandomItemPosition();
                 spawnEnemies();
                 spawnRandomItems();
+                spawnAsteroids();
                 updateLaserPosition();
                 world.getPlayer().update(delta);
                 world.getPlayer().getVelocity().scl(DAMP);
@@ -57,6 +61,20 @@ public class WorldController {
                     world.reset();
                 }
             }
+        }
+    }
+
+    private void updateAsteroidPosition(float delta) {
+        for (Asteroid asteroid : world.getAsteroids()) {
+            asteroid.update(delta);
+        }
+    }
+
+    private void spawnAsteroids() {
+        if (TimeUtils.millis() - lastAsteroidSpawnTime > MathUtils.random(1000, 2000)) {
+            float y = MathUtils.random(1f, 5f);
+            lastAsteroidSpawnTime = TimeUtils.millis();
+            world.spawnAsteroid(world.getPlayer().getPosition().x + 15, y);
         }
     }
 
@@ -162,7 +180,7 @@ public class WorldController {
         if (TimeUtils.millis() - lastRandomItemSpawnTime > MathUtils.random(10000, 60000)) {
             float y = MathUtils.random(1f, 5f);
             lastRandomItemSpawnTime = TimeUtils.millis();
-            world.spawnRandomItem(15, y);
+            world.spawnRandomItem(world.getPlayer().getPosition().x + 15, y);
         }
     }
 
@@ -170,7 +188,8 @@ public class WorldController {
         if (TimeUtils.millis() - lastEnemySpawnTime > MathUtils.random(1000, 10000)) {
             float y = MathUtils.random(1f, 5f);
             lastEnemySpawnTime = TimeUtils.millis();
-            world.spawnEnemy(15, y);
+            //take position of player and spawn enemies on the edge of screen
+            world.spawnEnemy(world.getPlayer().getPosition().x + 15, y);
         }
     }
 

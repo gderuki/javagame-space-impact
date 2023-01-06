@@ -126,9 +126,6 @@ public class PlayerPawn implements RenderAble {
         if (rectangle.x < 0) {
             velocity.x = Math.abs(velocity.x);
         }
-        if (rectangle.x > 15) {
-            velocity.x = -velocity.x;
-        }
         rectangle.y += velocity.y;
         if (rectangle.y < 0) {
             velocity.y = Math.abs((velocity.y));
