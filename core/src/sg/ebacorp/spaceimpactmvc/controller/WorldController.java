@@ -89,13 +89,16 @@ public class WorldController {
                     Vector2 collisionNormal = enemyPawn.getCentralPosition().sub(enemyPawn2.getCentralPosition()).nor();
                     // get relative velocity of 2 enemies
                     Vector2 relativeVelocity = enemyPawn.getVelocity().cpy().sub(enemyPawn2.getVelocity());
-                    // project relativeVelocity on collision normal
+                    // project relat iveVelocity on collision normal
                     float dotProduct = collisionNormal.dot(relativeVelocity);
-                    float newDotProduct = -dotProduct;
-                    // convert scalar to vector
-                    Vector2 separationVelocity = collisionNormal.scl(newDotProduct);
-                    enemyPawn.getVelocity().add(separationVelocity);
-                    enemyPawn2.getVelocity().add(separationVelocity.scl(-1));
+                    // check that relative velocity has close angle to collision normal
+                    if (dotProduct < 0) {
+                        float newDotProduct = -dotProduct;
+                        // convert scalar to vector
+                        Vector2 separationVelocity = collisionNormal.scl(newDotProduct);
+                        enemyPawn.getVelocity().add(separationVelocity);
+                        enemyPawn2.getVelocity().add(separationVelocity.scl(-1));
+                    }
                 }
             }
 
