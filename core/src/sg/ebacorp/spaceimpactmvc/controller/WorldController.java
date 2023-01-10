@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
+import sg.ebacorp.spaceimpactmvc.model.AABB;
 import sg.ebacorp.spaceimpactmvc.model.Asteroid;
 import sg.ebacorp.spaceimpactmvc.model.EnemyPawn;
 import sg.ebacorp.spaceimpactmvc.model.Laser;
@@ -78,6 +79,27 @@ public class WorldController {
     }
 
     private void broadPhase() {
+        ArrayList<Asteroid> asteroids = new ArrayList<>();
+        asteroids.addAll(world.getAsteroids());
+        for (int i = 0; i < asteroids.size() - 1; i++) {
+            Asteroid bodyA = asteroids.get(i);
+            AABB bodyA_aabb = bodyA.getAABB();
+
+            for (int j = i + 1; j < asteroids.size(); j++) {
+                Asteroid bodyB = asteroids.get(j);
+                AABB bodyB_aabb = bodyB.getAABB();
+
+//                if (bodyA.IsStatic && bodyB.IsStatic)
+//                {
+//                    continue;
+//                }
+
+                if (AABB.IntersectAABBs(bodyA_aabb, bodyB_aabb)) {
+                    this.asteroidPairs.add(new AsteroidPair(bodyA, bodyB));
+                }
+                // i j
+            }
+        }
 
     }
 
@@ -127,18 +149,28 @@ public class WorldController {
     }
 
     private void narrowPhase() {
-        ArrayList<Asteroid> asteroids = new ArrayList<>();
-        asteroids.addAll(world.getAsteroids());
-        for (int i = 0; i < asteroids.size() - 1; i++) {
-            Asteroid asteroid1 = asteroids.get(i);
-            for (int y = i + 1; y < asteroids.size(); y++) {
-                Asteroid asteroid2 = asteroids.get(y);
-                Asteroid.Overlap intersect = asteroid1.intersect(asteroid2, ppuX, ppuY);
-                if (!intersect.isGap()) {
-                    world.overlap = intersect;
-                    asteroid1.penetrationResolution(intersect, asteroid2, ppuX, ppuY);
-                    asteroid1.collisionResolution(intersect, asteroid2, ppuX, ppuY);
-                }
+//        ArrayList<Asteroid> asteroids = new ArrayList<>();
+//        asteroids.addAll(world.getAsteroids());
+//        for (int i = 0; i < asteroids.size() - 1; i++) {
+//            Asteroid asteroid1 = asteroids.get(i);
+//            for (int y = i + 1; y < asteroids.size(); y++) {
+//                Asteroid asteroid2 = asteroids.get(y);
+//                Asteroid.Overlap intersect = asteroid1.intersect(asteroid2, ppuX, ppuY);
+//                if (!intersect.isGap()) {
+//                    world.overlap = intersect;
+//                    asteroid1.penetrationResolution(intersect, asteroid2, ppuX, ppuY);
+//                    asteroid1.collisionResolution(intersect, asteroid2, ppuX, ppuY);
+//                }
+//            }
+//        }
+        for (AsteroidPair asteroidPair : this.asteroidPairs) {
+            Asteroid o2 = asteroidPair.getO2();
+            Asteroid o1 = asteroidPair.getO1();
+            Asteroid.Overlap intersect = o1.intersect(o2, 1, 1);
+            if (!intersect.isGap()) {
+                world.overlap = intersect;
+                o1.penetrationResolution(intersect, o2, ppuX, ppuY);
+                o1.collisionResolution(intersect, o2, ppuX, ppuY);
             }
         }
 

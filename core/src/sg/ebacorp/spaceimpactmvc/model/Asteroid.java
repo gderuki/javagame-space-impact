@@ -344,6 +344,30 @@ public class Asteroid implements PolygonRenderAble {
         acceleration.scl(1 / delta);
     }
 
+    public AABB getAABB() {
+        float minX = 999999999f;
+        float minY = 999999999f;
+        float maxX = 0;
+        float maxY = 0;
+        float[] transformedVertices = getTransformedVertices(1, 1, false);
+        for (int i = 0; i < transformedVertices.length; i = i + 2) {
+            Vector2 v = new Vector2(transformedVertices[i], transformedVertices[i + 1]);
+            if (v.x < minX) {
+                minX = v.x;
+            }
+            if (v.x > maxX) {
+                maxX = v.x;
+            }
+            if (v.y < minY) {
+                minY = v.y;
+            }
+            if (v.y > maxY) {
+                maxY = v.y;
+            }
+        }
+        return new AABB(minX, minY, maxX, maxY);
+    }
+
     public void collisionResolution33(Overlap intersect, Asteroid asteroid2, float ppuX, float ppuY) {
         Vector2 relativeVelocity = velocity.cpy().sub(asteroid2.velocity);
         float j = -(1f + (float) 0.2) * relativeVelocity.dot(intersect.axis);
