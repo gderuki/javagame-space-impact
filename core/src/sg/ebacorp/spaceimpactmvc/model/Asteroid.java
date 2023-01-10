@@ -32,6 +32,8 @@ public class Asteroid implements PolygonRenderAble {
     private float dynamicFriction = 0.4f;
     private float restitution = 0.2f;
 
+    Vector2 gravity = new Vector2(0, -229f);
+
     public Asteroid(float positionX, float positionY, boolean forward, boolean rectangle, float mass, Vector2 speed) {
         this(positionX, positionY, 50, 70, forward, rectangle, mass, speed);
     }
@@ -300,6 +302,14 @@ public class Asteroid implements PolygonRenderAble {
         this.angleVelocity = angleVelocity;
     }
 
+    public Vector2 getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(Vector2 gravity) {
+        this.gravity = gravity;
+    }
+
     @Override
     public void draw(PolygonSpriteBatch pSB, float ppuX, float ppuY) {
         PolygonSprite polygonSprite = createPolygonSprite(ppuX, ppuY);
@@ -325,8 +335,7 @@ public class Asteroid implements PolygonRenderAble {
         angle += angleVelocity * delta;
         acceleration.scl(delta);
         if (mass > 0) {
-            Vector2 gravity = new Vector2(0, -229f);
-            velocity.add(gravity.scl(delta));
+            velocity.add(gravity.cpy().scl(delta));
         }
         velocity.add(acceleration.x, acceleration.y);
         velocity.scl(delta);

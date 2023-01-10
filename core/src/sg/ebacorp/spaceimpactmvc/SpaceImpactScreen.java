@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 import sg.ebacorp.spaceimpactmvc.controller.WorldController;
 import sg.ebacorp.spaceimpactmvc.model.World;
 import sg.ebacorp.spaceimpactmvc.view.WorldView;
@@ -89,7 +90,9 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (button == Input.Buttons.LEFT) {
             //world.spawnAsteroid((float) screenX/ppuX,  (float) 9 - screenY/ppuY, new Vector2());
-            world.spawnAsteroid(screenX, screenY, new Vector2());
+            world.spawnAsteroid(screenX, RuntimeConfig.getInstance().screenHeight - screenY, new Vector2(), false);
+        } else if (button == Input.Buttons.RIGHT) {
+            world.spawnAsteroid(screenX, RuntimeConfig.getInstance().screenHeight - screenY, new Vector2(), true);
         }
         return false;
     }

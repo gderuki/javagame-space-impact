@@ -51,7 +51,7 @@ public class WorldController {
             }
         } else {
             if (world.getPlayer().alive()) {
-                processInputs();
+                //processInputs();
                 //updateEnemyPosition(delta);
                 processAsteroidInput(delta);
                 for (int i = 0; i < 128; i++) {
@@ -85,7 +85,7 @@ public class WorldController {
         if (TimeUtils.millis() - lastAsteroidSpawnTime > MathUtils.random(1000, 2000)) {
             float y = MathUtils.random(1f, 5f);
             lastAsteroidSpawnTime = TimeUtils.millis();
-            world.spawnAsteroid(world.getPlayer().getPosition().x + 15, y, new Vector2(MathUtils.random(-4, -1), 0));
+            world.spawnAsteroid(world.getPlayer().getPosition().x + 15, y, new Vector2(MathUtils.random(-4, -1), 0), false);
         }
     }
 
@@ -234,28 +234,23 @@ public class WorldController {
     }
 
     private void processAsteroidInput(float delta) {
-        Iterator<Asteroid> iterator = world.getAsteroids().iterator();
-        Asteroid asteroid = iterator.next();
-        while (iterator.hasNext()) {
-            Asteroid candidate = iterator.next();
-            if (asteroid.getMass() == 0) {
-                asteroid = candidate;
-            }
-        }
+        Asteroid asteroid = world.getPlayerAsteroid();
+        asteroid.setGravity(Vector2.Zero);
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            asteroid.getAcceleration().y += 10f * delta;
+            asteroid.getAcceleration().y += 100f * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            asteroid.getAcceleration().y -= 10f * delta;
+            asteroid.getAcceleration().y -= 100f * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            asteroid.getAcceleration().x += 10f * delta;
+            asteroid.getAcceleration().x += 100f * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            asteroid.getAcceleration().x -= 10f * delta;
+            asteroid.getAcceleration().x -= 100f * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
             asteroid.setAngleVelocity(asteroid.getAngleVelocity() + 0.01f);
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             asteroid.setAngleVelocity(asteroid.getAngleVelocity() - 0.01f);
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             asteroid.setAngleVelocity(0);
+            asteroid.getVelocity().set(Vector2.Zero);
         } else {
             asteroid.getAcceleration().x = 0;
             asteroid.getAcceleration().y = 0;

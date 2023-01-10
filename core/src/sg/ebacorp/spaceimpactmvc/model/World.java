@@ -18,6 +18,7 @@ public class World {
     private Set<Asteroid> asteroids;
     private Set<Laser> lasers;
     private Set<RandomPickup> randomPickups;
+    private Asteroid player = new Asteroid(300, 300, false, false, 1, Vector2.Zero);
 
     public World() {
         createWorld();
@@ -31,10 +32,15 @@ public class World {
         this.randomPickups = new HashSet<>();
         this.asteroids = new HashSet<>();
         asteroids.add(new Asteroid(550, 100, 800, 50, false, true, 0, new Vector2()));
+
     }
 
     public Asteroid.Overlap getOverlap() {
         return overlap;
+    }
+
+    public Asteroid getPlayerAsteroid() {
+        return player;
     }
 
     public PlayerPawn getPlayer() {
@@ -46,8 +52,8 @@ public class World {
         enemies.add(enemyPawn);
     }
 
-    public void spawnAsteroid(float x, float y, Vector2 speed) {
-        Asteroid asteroid = new Asteroid(x, y, false, false, 1, speed);
+    public void spawnAsteroid(float x, float y, Vector2 speed, boolean rectangle) {
+        Asteroid asteroid = new Asteroid(x, y, false, rectangle, 1, speed);
         asteroids.add(asteroid);
     }
 
@@ -98,6 +104,10 @@ public class World {
     }
 
     public Set<Asteroid> getAsteroids() {
-        return asteroids;
+        HashSet<Asteroid> asteroids1 = new HashSet<>(asteroids);
+        asteroids1.add(player);
+        return asteroids1;
     }
+
+
 }
