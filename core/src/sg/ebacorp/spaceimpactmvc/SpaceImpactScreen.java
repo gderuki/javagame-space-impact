@@ -1,6 +1,7 @@
 package sg.ebacorp.spaceimpactmvc;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.Vector2;
@@ -34,16 +35,17 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
 
         worldController.update(delta);
         // Works only if called here
-        playerCamera.position.x = world.getPlayer().getPosition().x * ppuX;
-        playerCamera.position.y = world.getPlayer().getPosition().y * ppuY;
-        playerCamera.update();
+        //playerCamera.position.x = world.getPlayer().getPosition().x * ppuX;
+        //playerCamera.position.y = world.getPlayer().getPosition().y * ppuY;
+        //playerCamera.update();
         batch.setProjectionMatrix(playerCamera.combined);
         worldView.render();
     }
 
     @Override
     public void resize(int width, int height) {
-        worldView.setSize(width, height);
+//        worldController.setSize(width, height);
+//        worldView.setSize(width, height);
     }
 
     @Override
@@ -85,6 +87,10 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (button == Input.Buttons.LEFT) {
+            //world.spawnAsteroid((float) screenX/ppuX,  (float) 9 - screenY/ppuY, new Vector2());
+            world.spawnAsteroid(screenX, screenY, new Vector2());
+        }
         return false;
     }
 

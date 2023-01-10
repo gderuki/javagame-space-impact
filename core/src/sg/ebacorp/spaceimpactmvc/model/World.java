@@ -6,10 +6,10 @@ import java.util.Set;
 
 import com.badlogic.gdx.math.Vector2;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
-import sg.ebacorp.spaceimpactmvc.NewScreen;
 
 public class World {
 
+    public Asteroid.Overlap overlap;
     ExecutionState executionState = ExecutionState.NONE;
 
     private PlayerPawn playerPawn;
@@ -30,6 +30,11 @@ public class World {
         this.lasers = new HashSet<>();
         this.randomPickups = new HashSet<>();
         this.asteroids = new HashSet<>();
+        asteroids.add(new Asteroid(550, 100, 800, 50, false, true, 0, new Vector2()));
+    }
+
+    public Asteroid.Overlap getOverlap() {
+        return overlap;
     }
 
     public PlayerPawn getPlayer() {
@@ -41,8 +46,8 @@ public class World {
         enemies.add(enemyPawn);
     }
 
-    public void spawnAsteroid(float x, float y) {
-        Asteroid asteroid = new Asteroid(x, y);
+    public void spawnAsteroid(float x, float y, Vector2 speed) {
+        Asteroid asteroid = new Asteroid(x, y, false, false, 1, speed);
         asteroids.add(asteroid);
     }
 

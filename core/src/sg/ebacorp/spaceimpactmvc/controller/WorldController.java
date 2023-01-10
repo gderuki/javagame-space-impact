@@ -15,6 +15,7 @@ import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
 import sg.ebacorp.spaceimpactmvc.model.ShootSound;
 import sg.ebacorp.spaceimpactmvc.model.World;
+import sg.ebacorp.spaceimpactmvc.view.WorldView;
 
 public class WorldController {
     private static final float DAMP = 0.97f;
@@ -29,6 +30,11 @@ public class WorldController {
     long lastRandomItemSpawnTime = TimeUtils.millis();
     long lastProjectileSpawnTime = TimeUtils.millis();
     long lastAsteroidSpawnTime = TimeUtils.millis();
+    private float ppuX = 1;
+    private float ppuY = 1;
+    private Asteroid.Overlap overlap;
+    private int minIteration = 1;
+    private int maxIteration = 128;
 
     public WorldController(World world) {
         this.world = world;
@@ -46,16 +52,21 @@ public class WorldController {
         } else {
             if (world.getPlayer().alive()) {
                 processInputs();
-                updateEnemyPosition(delta);
-                updateAsteroidPosition(delta);
-                resolveCollisions();
-                updateRandomItemPosition();
-                spawnEnemies();
-                spawnRandomItems();
-                spawnAsteroids();
-                updateLaserPosition();
-                world.getPlayer().update(delta);
-                world.getPlayer().getVelocity().scl(DAMP);
+                //updateEnemyPosition(delta);
+                processAsteroidInput(delta);
+                for (int i = 0; i < 128; i++) {
+                    updateAsteroidPosition(delta, 128);
+                    resolveAsteroidCollision();
+                }
+                //updateAsteroidPosition(delta);
+                //resolveCollisions();
+                //updateRandomItemPosition();
+                //spawnEnemies();
+                //spawnRandomItems();
+                //spawnAsteroids();
+                //updateLaserPosition();
+                //world.getPlayer().update(delta);
+                //world.getPlayer().getVelocity().scl(DAMP);
             } else {
                 if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     world.reset();
@@ -64,9 +75,9 @@ public class WorldController {
         }
     }
 
-    private void updateAsteroidPosition(float delta) {
+    private void updateAsteroidPosition(float delta, int i) {
         for (Asteroid asteroid : world.getAsteroids()) {
-            asteroid.update(delta);
+            asteroid.update(delta, i);
         }
     }
 
@@ -74,7 +85,7 @@ public class WorldController {
         if (TimeUtils.millis() - lastAsteroidSpawnTime > MathUtils.random(1000, 2000)) {
             float y = MathUtils.random(1f, 5f);
             lastAsteroidSpawnTime = TimeUtils.millis();
-            world.spawnAsteroid(world.getPlayer().getPosition().x + 15, y);
+            world.spawnAsteroid(world.getPlayer().getPosition().x + 15, y, new Vector2(MathUtils.random(-4, -1), 0));
         }
     }
 
@@ -103,6 +114,32 @@ public class WorldController {
             }
 
         }
+    }
+
+    public Asteroid.Overlap getOverlap() {
+        return overlap;
+    }
+
+    private void resolveAsteroidCollision() {
+        ArrayList<Asteroid> asteroids = new ArrayList<>();
+        asteroids.addAll(world.getAsteroids());
+        for (int i = 0; i < asteroids.size() - 1; i++) {
+            Asteroid asteroid1 = asteroids.get(i);
+            for (int y = i + 1; y < asteroids.size(); y++) {
+                Asteroid asteroid2 = asteroids.get(y);
+                Asteroid.Overlap intersect = asteroid1.intersect(asteroid2, ppuX, ppuY);
+                if (!intersect.isGap()) {
+                    world.overlap = intersect;
+                    asteroid1.penetrationResolution(intersect, asteroid2, ppuX, ppuY);
+                    asteroid1.collisionResolution(intersect, asteroid2, ppuX, ppuY);
+                }
+            }
+        }
+
+    }
+
+    private void penetrationResolution(Asteroid asteroid1, Asteroid asteroid2, Asteroid.Overlap intersect) {
+
     }
 
     private void updateRandomItemPosition() {
@@ -188,12 +225,42 @@ public class WorldController {
     }
 
     private void spawnEnemies() {
-        if (TimeUtils.millis() - lastEnemySpawnTime > MathUtils.random(1000, 10000)) {
+        if (TimeUtils.millis() - lastEnemySpawnTime > MathUtils.random(1000, 2000)) {
             float y = MathUtils.random(1f, 5f);
             lastEnemySpawnTime = TimeUtils.millis();
             //take position of player and spawn enemies on the edge of screen
-            world.spawnEnemy(world.getPlayer().getPosition().x + 15, y);
+            world.spawnEnemy(1, 5);
         }
+    }
+
+    private void processAsteroidInput(float delta) {
+        Iterator<Asteroid> iterator = world.getAsteroids().iterator();
+        Asteroid asteroid = iterator.next();
+        while (iterator.hasNext()) {
+            Asteroid candidate = iterator.next();
+            if (asteroid.getMass() == 0) {
+                asteroid = candidate;
+            }
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            asteroid.getAcceleration().y += 10f * delta;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            asteroid.getAcceleration().y -= 10f * delta;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            asteroid.getAcceleration().x += 10f * delta;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            asteroid.getAcceleration().x -= 10f * delta;
+        } else if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            asteroid.setAngleVelocity(asteroid.getAngleVelocity() + 0.01f);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            asteroid.setAngleVelocity(asteroid.getAngleVelocity() - 0.01f);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            asteroid.setAngleVelocity(0);
+        } else {
+            asteroid.getAcceleration().x = 0;
+            asteroid.getAcceleration().y = 0;
+        }
+        //asteroid.getVelocity().scl(0.9f);
     }
 
     private void processInputs() {
@@ -213,11 +280,8 @@ public class WorldController {
             ShootSound.sound.play();
             spawnProjectile();
         }
-        if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT)
-                    && !Gdx.input.isKeyPressed(Input.Keys.LEFT)
-                    && !Gdx.input.isKeyPressed(Input.Keys.UP)
-                    && !Gdx.input.isKeyPressed(Input.Keys.DOWN)
-        ) {
+        if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.UP) &&
+                !Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             world.getPlayer().clearAcceleration();
         }
     }
@@ -226,5 +290,11 @@ public class WorldController {
         world.spawnLaser(world.getPlayer().getPosition().x + world.getPlayer().getBounds().width,
                 world.getPlayer().getPosition().y + (world.getPlayer().getBounds().height / 2));
         lastProjectileSpawnTime = TimeUtils.nanoTime();
+    }
+
+    public void setSize(int width, int height) {
+//        ppuX = (float) width / WorldView.VIEWPORT_WIDTH_RATIO;
+//        ppuY = (float) height / WorldView.VIEWPORT_HEIGHT_RATIO;
+
     }
 }

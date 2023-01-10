@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import sg.ebacorp.spaceimpact.utils.ExecutionState;
 import sg.ebacorp.spaceimpactmvc.model.Asteroid;
 import sg.ebacorp.spaceimpactmvc.model.EnemyPawn;
@@ -28,21 +29,22 @@ public class WorldView {
     public static OrthographicCamera playerCamera;
     public static SpriteBatch batch;
     private final BitmapFont font;
-    public static float ppuX;
-    public static float ppuY;
-    public static OrthographicCamera camera;
+    public static float ppuX = 1;
+    public static float ppuY = 1;
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private PolygonSpriteBatch polygonSpriteBatch = new PolygonSpriteBatch();
-
 
     Texture backgroundImage;
 
     public WorldView(World world) {
         this.world = world;
-        playerCamera = new OrthographicCamera(VIEWPORT_WIDTH_ABS, VIEWPORT_HEIGHT_ABS);
-        playerCamera.position.x = VIEWPORT_WIDTH_ABS / 2;
-        playerCamera.position.y = VIEWPORT_HEIGHT_ABS / 2;
-        playerCamera.zoom = 0.95f;
+        playerCamera = new OrthographicCamera();
+        playerCamera.setToOrtho(false, VIEWPORT_WIDTH_ABS, VIEWPORT_HEIGHT_ABS);
+//        playerCamera.position.x = VIEWPORT_WIDTH_ABS / 2;
+//        playerCamera.position.y = VIEWPORT_HEIGHT_ABS / 2;
+//        playerCamera.zoom = 0.95f;
+//        playerCamera.position.x = 0;
+//        playerCamera.position.y = 0;
         playerCamera.update();
 
         backgroundImage = new Texture(Gdx.files.internal("bg_debug.png"));
@@ -50,7 +52,7 @@ public class WorldView {
         batch = new SpriteBatch();
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("pixelfont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 60;
+        parameter.size = 10;
         parameter.borderWidth = 1;
         parameter.color = Color.BLACK;
         parameter.shadowOffsetX = 1;
@@ -70,10 +72,10 @@ public class WorldView {
                 drawDebugMarkers();
 
                 // render all renderables
-                for (RenderAble renderAble : world.getAllRenderAbles()) {
-                    batch.draw(renderAble.getTexture(), renderAble.getPosition().x * ppuX, renderAble.getPosition().y * ppuY,
-                            renderAble.getBounds().width * ppuX, renderAble.getBounds().height * ppuY);
-                }
+//                for (RenderAble renderAble : world.getAllRenderAbles()) {
+//                    batch.draw(renderAble.getTexture(), renderAble.getPosition().x * ppuX, renderAble.getPosition().y * ppuY,
+//                            renderAble.getBounds().width * ppuX, renderAble.getBounds().height * ppuY);
+//                }
 
                 renderUI();
             } else {
@@ -82,10 +84,32 @@ public class WorldView {
         }
         batch.end();
         playerCamera.update();
+
+        //shapeRenderer.setProjectionMatrix(playerCamera.combined);
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.begin();
+        shapeRenderer.circle(10, 10, 50);
+        for (Asteroid asteroid : world.getAsteroids()) {
+            if (asteroid.hasCollision()) {
+                shapeRenderer.line(new Vector2(10, 10), asteroid.getOverlapAxis().nor().scl(50));
+            }
+        }
+        if (world.overlap != null) {
+            shapeRenderer.circle(world.overlap.getCollisionVertex().x, world.overlap.getCollisionVertex().y, 2);
+        }
+        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.end();
+
         polygonSpriteBatch.begin();
-        polygonSpriteBatch.setProjectionMatrix(playerCamera.combined);
+        //polygonSpriteBatch.setProjectionMatrix(playerCamera.combined);
         for (Asteroid asteroid : world.getAsteroids()) {
             asteroid.draw(polygonSpriteBatch, ppuX, ppuY);
+            if (asteroid.hasCollision()) {
+                font.draw(polygonSpriteBatch, "ALARMA COLLISION, DEPTH=" + String.valueOf(asteroid.getDepth()), 1, 1);
+            } else {
+                font.draw(polygonSpriteBatch, "                     ", 1, 1);
+            }
+
         }
         polygonSpriteBatch.end();
     }
@@ -133,7 +157,7 @@ public class WorldView {
     }
 
     public void setSize(int width, int height) {
-        ppuX = (float) width / VIEWPORT_WIDTH_RATIO;
-        ppuY = (float) height / VIEWPORT_HEIGHT_RATIO;
+//        ppuX = (float) width / VIEWPORT_WIDTH_RATIO;
+//        ppuY = (float) height / VIEWPORT_HEIGHT_RATIO;
     }
 }

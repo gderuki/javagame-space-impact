@@ -30,7 +30,7 @@ public class EnemyPawn implements RenderAble, Collidable {
         bounds.setWidth(1.25f);
         bounds.setHeight(1f);
         acceleration = new Vector2(ENEMY_ACCELERATION, 0);
-        velocity = new Vector2(MathUtils.random(-3, -1), 0);
+        velocity = new Vector2(MathUtils.random(1, 13), 0);
     }
 
     @Override
