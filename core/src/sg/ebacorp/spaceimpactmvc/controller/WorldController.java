@@ -15,7 +15,6 @@ import sg.ebacorp.spaceimpactmvc.model.Laser;
 import sg.ebacorp.spaceimpactmvc.model.RandomPickup;
 import sg.ebacorp.spaceimpactmvc.model.ShootSound;
 import sg.ebacorp.spaceimpactmvc.model.World;
-import sg.ebacorp.spaceimpactmvc.view.WorldView;
 
 public class WorldController {
     private static final float DAMP = 0.97f;
@@ -35,6 +34,7 @@ public class WorldController {
     private Asteroid.Overlap overlap;
     private int minIteration = 1;
     private int maxIteration = 128;
+    private ArrayList<AsteroidPair> asteroidPairs = new ArrayList<>();
 
     public WorldController(World world) {
         this.world = world;
@@ -55,8 +55,10 @@ public class WorldController {
                 //updateEnemyPosition(delta);
                 processAsteroidInput(delta);
                 for (int i = 0; i < 128; i++) {
+                    asteroidPairs.clear();
                     updateAsteroidPosition(delta, 128);
-                    resolveAsteroidCollision();
+                    broadPhase();
+                    narrowPhase();
                 }
                 //updateAsteroidPosition(delta);
                 //resolveCollisions();
@@ -73,6 +75,10 @@ public class WorldController {
                 }
             }
         }
+    }
+
+    private void broadPhase() {
+
     }
 
     private void updateAsteroidPosition(float delta, int i) {
@@ -120,7 +126,7 @@ public class WorldController {
         return overlap;
     }
 
-    private void resolveAsteroidCollision() {
+    private void narrowPhase() {
         ArrayList<Asteroid> asteroids = new ArrayList<>();
         asteroids.addAll(world.getAsteroids());
         for (int i = 0; i < asteroids.size() - 1; i++) {
@@ -251,6 +257,8 @@ public class WorldController {
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             asteroid.setAngleVelocity(0);
             asteroid.getVelocity().set(Vector2.Zero);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.C)) {
+            world.clearAsteroids();
         } else {
             asteroid.getAcceleration().x = 0;
             asteroid.getAcceleration().y = 0;
@@ -291,5 +299,23 @@ public class WorldController {
 //        ppuX = (float) width / WorldView.VIEWPORT_WIDTH_RATIO;
 //        ppuY = (float) height / WorldView.VIEWPORT_HEIGHT_RATIO;
 
+    }
+
+    private static class AsteroidPair {
+        private Asteroid o1;
+        private Asteroid o2;
+
+        public AsteroidPair(Asteroid o1, Asteroid o2) {
+            this.o1 = o1;
+            this.o2 = o2;
+        }
+
+        public Asteroid getO1() {
+            return o1;
+        }
+
+        public Asteroid getO2() {
+            return o2;
+        }
     }
 }

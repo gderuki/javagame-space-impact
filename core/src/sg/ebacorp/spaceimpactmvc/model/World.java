@@ -19,6 +19,7 @@ public class World {
     private Set<Laser> lasers;
     private Set<RandomPickup> randomPickups;
     private Asteroid player = new Asteroid(300, 300, false, false, 1, Vector2.Zero);
+    private Asteroid rectangle = new Asteroid(550, 100, 800, 50, false, true, 0, new Vector2());
 
     public World() {
         createWorld();
@@ -31,7 +32,6 @@ public class World {
         this.lasers = new HashSet<>();
         this.randomPickups = new HashSet<>();
         this.asteroids = new HashSet<>();
-        asteroids.add(new Asteroid(550, 100, 800, 50, false, true, 0, new Vector2()));
 
     }
 
@@ -103,9 +103,14 @@ public class World {
         return result;
     }
 
+    public void clearAsteroids() {
+        asteroids.clear();
+    }
+
     public Set<Asteroid> getAsteroids() {
         HashSet<Asteroid> asteroids1 = new HashSet<>(asteroids);
         asteroids1.add(player);
+        asteroids1.add(rectangle);
         return asteroids1;
     }
 
