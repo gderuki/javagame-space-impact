@@ -1,5 +1,6 @@
 package sg.ebacorp.spaceimpactmvc.model;
 
+
 public class AABB {
 
     private final float minX;
@@ -20,5 +21,29 @@ public class AABB {
         }
 
         return true;
+    }
+
+    public float getMinX() {
+        return minX;
+    }
+
+    public float getMinY() {
+        return minY;
+    }
+
+    public float getMaxX() {
+        return maxX;
+    }
+
+    public float getMaxY() {
+        return maxY;
+    }
+
+    public float getWidth() {
+        return maxX - minX;
+    }
+
+    public float getHeight() {
+        return maxY - minY;
     }
 }

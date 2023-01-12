@@ -1,6 +1,7 @@
 package sg.ebacorp.spaceimpactmvc.model;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.badlogic.gdx.graphics.g2d.PolygonSprite;
@@ -33,6 +34,7 @@ public class Asteroid implements PolygonRenderAble {
     private float restitution = 0.2f;
 
     Vector2 gravity = new Vector2(0, -229f);
+    private TextureRegion region;
 
     public Asteroid(float positionX, float positionY, boolean forward, boolean rectangle, float mass, Vector2 speed) {
         this(positionX, positionY, 50, 70, forward, rectangle, mass, speed);
@@ -47,13 +49,7 @@ public class Asteroid implements PolygonRenderAble {
         if (inertia > 0) {
             inversInertia = (float) 1 / inertia;
         }
-        texture = new Texture(Gdx.files.internal(String.format("asteroid-1.jpg", MathUtils.random(1, 3))));
         this.velocity = new Vector2();
-//        if(!forward) {
-//            this.velocity = new Vector2(MathUtils.random(-3, -1), 0);
-//        } else {
-//            this.velocity = new Vector2(MathUtils.random(1, 3), 0);
-//        }
         velocity.set(speed);
         position.x = positionX;
         position.y = positionY;
@@ -70,6 +66,16 @@ public class Asteroid implements PolygonRenderAble {
         } else {
             createVertices();
         }
+        createTexture();
+    }
+
+    private void createTexture() {
+        AABB aabb = getAABB();
+        Pixmap pixmap = new Pixmap((int) aabb.getWidth(), (int) aabb.getHeight(), Pixmap.Format.RGBA8888);
+        MyPixelRenderer.generatePerlin(pixmap, false, 8);
+        texture = new Texture(pixmap);
+        texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+        this.region = new TextureRegion(texture, 30, 30, 1, 1);
     }
 
     public boolean hasCollision() {
@@ -317,8 +323,6 @@ public class Asteroid implements PolygonRenderAble {
     }
 
     private PolygonSprite createPolygonSprite(float ppuX, float ppuY) {
-        texture.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
-        TextureRegion region = new TextureRegion(texture);
         // No need to transform vertices here, since libgdx will do it internally
         // check set position and set origin
         float[] origVertices = vertices;

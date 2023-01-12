@@ -4,10 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import sg.ebacorp.spaceimpact.utils.RuntimeConfig;
 import sg.ebacorp.spaceimpactmvc.controller.WorldController;
+import sg.ebacorp.spaceimpactmvc.model.MyPixelRenderer;
 import sg.ebacorp.spaceimpactmvc.model.World;
 import sg.ebacorp.spaceimpactmvc.view.WorldView;
 
@@ -21,9 +24,13 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
     World world;
     WorldController worldController;
     WorldView worldView;
+    private Texture texture;
 
     @Override
     public void show() {
+        Pixmap pixmap = new Pixmap(RuntimeConfig.getInstance().screenWidth, RuntimeConfig.getInstance().screenHeight, Pixmap.Format.RGB888);
+        MyPixelRenderer.generatePerlin(pixmap, true, 128);
+        texture = new Texture(pixmap);
         world = new World();
         worldView = new WorldView(world);
         worldController = new WorldController(world);
@@ -33,6 +40,9 @@ public class SpaceImpactScreen implements Screen, InputProcessor {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0.698f, 0.741f, 0.31f, 1);
+        batch.begin();
+        batch.draw(texture, 0f, 0f);
+        batch.end();
 
         worldController.update(delta);
         // Works only if called here
