@@ -72,9 +72,9 @@ public class MyPixelRenderer {
                 if (clouds) {
                     Color newColor = new Color(0, 0, 0, 1);
                     float[] hsv = new float[3];
-                    hsv[0] = 213f;
+                    hsv[0] = 196f;
                     hsv[1] = color / 4f; // light brightness will be from 0 till 0.25
-                    hsv[2] = 1f;
+                    hsv[2] = 0.99f;
                     pixmap.drawPixel(i, j, Color.rgba8888(newColor.fromHsv(hsv)));
                 } else {
                     pixmap.drawPixel(i, j, Color.rgba8888(color, color, color, 1));
