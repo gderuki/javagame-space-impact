@@ -75,7 +75,9 @@ public class Asteroid implements PolygonRenderAble {
         MyPixelRenderer.generatePerlin(pixmap, false, 8);
         texture = new Texture(pixmap);
         texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
-        this.region = new TextureRegion(texture, 30, 30, 1, 1);
+        this.region = new TextureRegion(texture);
+        // since we are using verticies with negative values, we need to adjust U and V axises
+        this.region.setRegion(this.region.getU() + 0.5f, this.region.getV() - 0.5f, this.region.getU2() + 0.5f, this.region.getV2() - 0.5f);
     }
 
     public boolean hasCollision() {
@@ -329,7 +331,7 @@ public class Asteroid implements PolygonRenderAble {
         PolygonRegion polygonRegion = new PolygonRegion(region, origVertices, new EarClippingTriangulator().computeTriangles(origVertices).toArray());
         PolygonSprite polygonSprite = new PolygonSprite(polygonRegion);
         polygonSprite.setPosition(position.x * ppuX, position.y * ppuY);
-        polygonSprite.setOrigin(0f, 0f);
+        polygonSprite.setOrigin(0, 0);
         polygonSprite.rotate(MathUtils.radiansToDegrees * angle);
         return polygonSprite;
     }
@@ -351,8 +353,8 @@ public class Asteroid implements PolygonRenderAble {
     public AABB getAABB() {
         float minX = 999999999f;
         float minY = 999999999f;
-        float maxX = 0;
-        float maxY = 0;
+        float maxX = -999999999f;
+        float maxY = -999999999f;
         float[] transformedVertices = getTransformedVertices(1, 1, false);
         for (int i = 0; i < transformedVertices.length; i = i + 2) {
             Vector2 v = new Vector2(transformedVertices[i], transformedVertices[i + 1]);
