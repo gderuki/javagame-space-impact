@@ -66,8 +66,8 @@ public class MyPixelRenderer {
         int height = pixmap.getHeight();
         int width = pixmap.getWidth();
         float[][] noise = generateNoise(height, width);
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 float color = turbulence((float) i, (float) j, depth, noise, height, width);
                 if (clouds) {
                     Color newColor = new Color(0, 0, 0, 1);
