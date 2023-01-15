@@ -333,7 +333,7 @@ public class WorldController {
 
     }
 
-    private static class AsteroidPair {
+    public static class AsteroidPair {
         private Asteroid o1;
         private Asteroid o2;
 

@@ -1,6 +1,5 @@
 package sg.ebacorp.spaceimpactmvc.model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.PolygonRegion;
@@ -9,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.RandomXS128;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class Asteroid implements PolygonRenderAble {
@@ -32,6 +33,7 @@ public class Asteroid implements PolygonRenderAble {
     private float staticFriction = 0.6f;
     private float dynamicFriction = 0.4f;
     private float restitution = 0.2f;
+    RandomXS128 random = new RandomXS128();
 
     Vector2 gravity = new Vector2(0, -229f);
     private TextureRegion region;
@@ -69,6 +71,30 @@ public class Asteroid implements PolygonRenderAble {
         createTexture();
     }
 
+    public Asteroid(int positionX, int positionY) {
+        random.setSeed((positionX & 0xFFFF) << 16 | (positionY & 0xFFFF));
+        this.mass = 1;
+        if (mass > 0) {
+            invMass = (float) 1 / mass;
+            inertia = (1f / 12) * mass * (10 * 10 + 10 * 10);
+        }
+        if (inertia > 0) {
+            inversInertia = (float) 1 / inertia;
+        }
+        position.x = positionX;
+        position.y = positionY;
+        velocity = new Vector2();
+        gravity = new Vector2();
+    }
+
+    private int random(int start, int end) {
+        return start + random.nextInt(end - start + 1);
+    }
+
+    private float random(float start, float end) {
+        return start + random.nextFloat() * (end - start);
+    }
+
     private void createTexture() {
         AABB aabb = getAABB();
         Pixmap pixmap = new Pixmap((int) aabb.getWidth(), (int) aabb.getHeight(), Pixmap.Format.RGBA8888);
@@ -91,16 +117,16 @@ public class Asteroid implements PolygonRenderAble {
     private void createVertices() {
         int minPoints = 6;
         int maxPoints = 10;
-        int points = MathUtils.random(minPoints, maxPoints);
+        int points = random(minPoints, maxPoints);
         this.vertices = new float[points * 2];
         float deltaAngle = MathUtils.PI2 / (float) points;
         float angle = 0f;
         float minDist = 12f;
         float maxDist = 24f;
         for (int i = 0; i < points * 2; i = i + 2) {
-            float dist = MathUtils.random(minDist, maxDist);
-            float x = MathUtils.cos(angle) * dist * 3;
-            float y = MathUtils.sin(angle) * dist * 3;
+            float dist = random(minDist, maxDist);
+            float x = MathUtils.cos(angle) * dist;
+            float y = MathUtils.sin(angle) * dist;
             this.vertices[i] = x;
             this.vertices[i + 1] = y;
             angle += deltaAngle;
@@ -327,6 +353,12 @@ public class Asteroid implements PolygonRenderAble {
     private PolygonSprite createPolygonSprite(float ppuX, float ppuY) {
         // No need to transform vertices here, since libgdx will do it internally
         // check set position and set origin
+        if (vertices == null) {
+            createVertices();
+        }
+        if (texture == null) {
+            createTexture();
+        }
         float[] origVertices = vertices;
         PolygonRegion polygonRegion = new PolygonRegion(region, origVertices, new EarClippingTriangulator().computeTriangles(origVertices).toArray());
         PolygonSprite polygonSprite = new PolygonSprite(polygonRegion);
@@ -336,25 +368,30 @@ public class Asteroid implements PolygonRenderAble {
         return polygonSprite;
     }
 
+
     public void update(float delta, int i) {
         delta = delta / (float) i;
-        angle += angleVelocity * delta;
-        acceleration.scl(delta);
-        if (mass > 0) {
-            velocity.add(gravity.cpy().scl(delta));
+        if (delta > 0) {
+            angle += angleVelocity * delta;
+            acceleration.scl(delta);
+            if (mass > 0) {
+                velocity.add(gravity.cpy().scl(delta));
+            }
+            velocity.add(acceleration.x, acceleration.y);
+            velocity.scl(delta);
+            position.add(velocity);
+            velocity.scl(1 / delta);
+            acceleration.scl(1 / delta);
         }
-        velocity.add(acceleration.x, acceleration.y);
-        velocity.scl(delta);
-        position.add(velocity);
-        velocity.scl(1 / delta);
-        acceleration.scl(1 / delta);
     }
-
     public AABB getAABB() {
         float minX = 999999999f;
         float minY = 999999999f;
         float maxX = -999999999f;
         float maxY = -999999999f;
+        if (vertices == null) {
+            createVertices();
+        }
         float[] transformedVertices = getTransformedVertices(1, 1, false);
         for (int i = 0; i < transformedVertices.length; i = i + 2) {
             Vector2 v = new Vector2(transformedVertices[i], transformedVertices[i + 1]);
@@ -372,6 +409,14 @@ public class Asteroid implements PolygonRenderAble {
             }
         }
         return new AABB(minX, minY, maxX, maxY);
+    }
+
+    public Rectangle getRectangle() {
+        if (vertices == null || vertices.length == 0) {
+            return new Rectangle(position.x, position.y, 60, 60);
+        }
+        AABB aabb = getAABB();
+        return new Rectangle(position.x, position.y, aabb.getWidth(), aabb.getHeight());
     }
 
     public void collisionResolution33(Overlap intersect, Asteroid asteroid2, float ppuX, float ppuY) {
