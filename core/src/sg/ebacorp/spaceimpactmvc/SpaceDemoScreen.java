@@ -67,8 +67,7 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
     }
 
     private void broadPhase() {
-        Rectangle screenRectangle = new Rectangle(playerCamera.position.x / playerCamera.zoom, playerCamera.position.y / playerCamera.zoom,
-                (float) playerCamera.viewportWidth * playerCamera.zoom, (float) playerCamera.viewportHeight * playerCamera.zoom);
+        Rectangle screenRectangle = getCameraRectangle();
         ArrayList<Asteroid> asteroids = new ArrayList<>();
         asteroids.addAll(asteroidArrayList);
         for (int i = 0; i < asteroids.size() - 1; i++) {
@@ -76,16 +75,9 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
             Asteroid bodyA = asteroids.get(i);
             if (bodyA.getRectangle().overlaps(screenRectangle)) {
                 AABB bodyA_aabb = bodyA.getAABB();
-
                 for (int j = i + 1; j < asteroids.size(); j++) {
                     Asteroid bodyB = asteroids.get(j);
                     AABB bodyB_aabb = bodyB.getAABB();
-
-//                if (bodyA.IsStatic && bodyB.IsStatic)
-//                {
-//                    continue;
-//                }
-
                     if (AABB.IntersectAABBs(bodyA_aabb, bodyB_aabb)) {
                         this.asteroidPairs.add(new WorldController.AsteroidPair(bodyA, bodyB));
                     }
@@ -93,6 +85,15 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
             }
         }
 
+    }
+
+    private Rectangle getCameraRectangle() {
+        Rectangle screenRectangle = new Rectangle(
+                (playerCamera.position.x / playerCamera.zoom) - (playerCamera.viewportWidth / playerCamera.zoom / 2),
+                (playerCamera.position.y / playerCamera.zoom) - (360 / playerCamera.zoom), (float) playerCamera.viewportWidth * playerCamera.zoom,
+                (float) playerCamera.viewportHeight * playerCamera.zoom);
+
+        return screenRectangle;
     }
 
     private void narrowPhase() {
@@ -117,14 +118,11 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
             broadPhase();
             narrowPhase();
         }
+        Rectangle cameraRectangle = getCameraRectangle();
         polygonSpriteBatch.setProjectionMatrix(playerCamera.combined);
         polygonSpriteBatch.begin();
-        Rectangle screenRectangle = new Rectangle(
-                (playerCamera.position.x / playerCamera.zoom) - (playerCamera.viewportWidth / playerCamera.zoom / 2),
-                (playerCamera.position.y / playerCamera.zoom) - (360 / playerCamera.zoom), (float) playerCamera.viewportWidth * playerCamera.zoom,
-                (float) playerCamera.viewportHeight * playerCamera.zoom);
         for (Asteroid asteroid : asteroidArrayList) {
-            if (asteroid.getRectangle().overlaps(screenRectangle)) {
+            if (asteroid.getRectangle().overlaps(cameraRectangle)) {
                 asteroid.draw(polygonSpriteBatch, 1, 1);
             }
         }
