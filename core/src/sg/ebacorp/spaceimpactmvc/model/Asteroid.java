@@ -621,6 +621,10 @@ public class Asteroid implements PolygonRenderAble {
         this.angle = angle;
     }
 
+    public void setMass(int i) {
+        mass = 0;
+    }
+
     private static class ProjectedVertex {
         float min;
         float max;

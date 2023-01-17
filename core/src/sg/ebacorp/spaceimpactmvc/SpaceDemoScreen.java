@@ -126,7 +126,7 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
         for (int i = 0; i < 16; i++) {
             asteroidPairs.clear();
             updateAsteroidPosition(delta, 16);
-            //broadPhase();
+            broadPhase();
             narrowPhase();
         }
         // Rectangle cameraRectangle = getCameraRectangle();
@@ -195,6 +195,9 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
             Vector2 npcGradient = spline.getGradient(position, true);
             if (player == null) {
                 player = new Asteroid(0, 0, false);
+                player.getPosition().set(npcPosition);
+                //super body
+                player.setMass(0);
                 asteroidArrayList.add(player);
             }
             float angle = MathUtils.atan2(-npcGradient.y, npcGradient.x);
@@ -203,7 +206,7 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
 //                    -15.0f * MathUtils.sin(angle) + npcPosition.x, -15.0f * MathUtils.cos(angle) + npcPosition.y);
 //            shapeRenderer.end();
             player.setAngle(MathUtils.PI2 - angle);
-            player.getPosition().set(npcPosition);
+            player.getVelocity().set(npcGradient);
             position += delta;
         }
 
