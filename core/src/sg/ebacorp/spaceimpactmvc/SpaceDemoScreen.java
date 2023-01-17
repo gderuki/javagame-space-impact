@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -36,6 +37,8 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
     private ArrayList<WorldController.AsteroidPair> asteroidPairs = new ArrayList<>();
     Asteroid player;
     private int[] obstacleMap;
+    ArrayList<Vector2> points;
+    float position = 0;
 
     @Override
     public void show() {
@@ -75,13 +78,13 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
     }
 
     private void broadPhase() {
-        Rectangle screenRectangle = getCameraRectangle();
+        //Rectangle screenRectangle = getCameraRectangle();
         ArrayList<Asteroid> asteroids = new ArrayList<>();
         asteroids.addAll(asteroidArrayList);
         for (int i = 0; i < asteroids.size() - 1; i++) {
 
             Asteroid bodyA = asteroids.get(i);
-            if (bodyA.getRectangle().overlaps(screenRectangle)) {
+//            if (bodyA.getRectangle().overlaps(screenRectangle)) {
                 AABB bodyA_aabb = bodyA.getAABB();
                 for (int j = i + 1; j < asteroids.size(); j++) {
                     Asteroid bodyB = asteroids.get(j);
@@ -90,7 +93,7 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
                         this.asteroidPairs.add(new WorldController.AsteroidPair(bodyA, bodyB));
                     }
                 }
-            }
+//            }
         }
 
     }
@@ -161,21 +164,47 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
         shapeRenderer.rect(0, 0, 300, 20);
         shapeRenderer.end();
 
-        ArrayList<Vector2> points = new ArrayList<>();
-
-        for (Asteroid asteroid : asteroidArrayList) {
-            points.add(asteroid.getPosition());
-        }
-
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            if (points == null) {
+                points = new ArrayList<>();
+                for (Asteroid asteroid : asteroidArrayList) {
+                    points.add(asteroid.getPosition().cpy());
+                }
+            }
+        }
+        Spline spline = null;
+        if (points != null) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.RED);
-            Spline spline = new Spline(points);
+            spline = new Spline(points);
             for (float i = 0; i < (float) points.size(); i = i + 0.005f) {
                 Vector2 point = spline.GetSplinePoint(i, true);
                 shapeRenderer.point(point.x, point.y, 0);
             }
             shapeRenderer.end();
+        }
+
+        if (spline != null) {
+            if (position >= (float) points.size()) {
+                position -= (float) points.size();
+            }
+            if (position < 0.0f) {
+                position += (float) points.size();
+            }
+            Vector2 npcPosition = spline.GetSplinePoint(position, true);
+            Vector2 npcGradient = spline.getGradient(position, true);
+            if (player == null) {
+                player = new Asteroid(0, 0, false);
+                asteroidArrayList.add(player);
+            }
+            float angle = MathUtils.atan2(-npcGradient.y, npcGradient.x);
+//            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+//            shapeRenderer.line(15.0f * MathUtils.sin(angle) + npcPosition.x, 15.0f * MathUtils.cos(angle) + npcPosition.y,
+//                    -15.0f * MathUtils.sin(angle) + npcPosition.x, -15.0f * MathUtils.cos(angle) + npcPosition.y);
+//            shapeRenderer.end();
+            player.setAngle(MathUtils.PI2 - angle);
+            player.getPosition().set(npcPosition);
+            position += delta;
         }
 
         polygonSpriteBatch.begin();
