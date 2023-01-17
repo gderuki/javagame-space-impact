@@ -26,7 +26,7 @@ public class SpaceDemo {
         // INFO: could be used fps cap OR vsync, using both will not work,
         //  guess, the priority will go to vsync rather than to fps cap.
 
-        config.setWindowedMode(RuntimeConfig.getInstance().screenWidth, RuntimeConfig.getInstance().screenHeight);
+        config.setWindowedMode(RuntimeConfig.getDemoInstance().screenWidth, RuntimeConfig.getInstance().screenHeight);
         config.useVsync(true);
 //
 //        if (!USE_VSYNC) {

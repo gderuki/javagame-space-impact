@@ -31,16 +31,15 @@ public class RuntimeConfig {
 
     public static RuntimeConfig getInstance() {
         if (RuntimeConfig.instance == null) {
-            RuntimeConfig.instance =
-                    new RuntimeConfig(
-                            1280,
-                            720,
-                            60,
-                            true,
-                            true,
-                            false,
-                            new float[]{0.698f, 0.741f, 0.31f}
-                    );
+            RuntimeConfig.instance = new RuntimeConfig(1280, 720, 60, true, true, false, new float[] {0.698f, 0.741f, 0.31f});
+        }
+
+        return RuntimeConfig.instance;
+    }
+
+    public static RuntimeConfig getDemoInstance() {
+        if (RuntimeConfig.instance == null) {
+            RuntimeConfig.instance = new RuntimeConfig(480, 640, 60, true, true, false, new float[] {0.698f, 0.741f, 0.31f});
         }
 
         return RuntimeConfig.instance;

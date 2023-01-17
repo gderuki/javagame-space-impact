@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Asteroid implements PolygonRenderAble {
 
+    private boolean block;
     private Texture texture;
 
     private float[] vertices;
@@ -71,7 +72,7 @@ public class Asteroid implements PolygonRenderAble {
         createTexture();
     }
 
-    public Asteroid(int positionX, int positionY) {
+    public Asteroid(int positionX, int positionY, boolean block) {
         random.setSeed((positionX & 0xFFFF) << 16 | (positionY & 0xFFFF));
         this.mass = 1;
         if (mass > 0) {
@@ -81,10 +82,30 @@ public class Asteroid implements PolygonRenderAble {
         if (inertia > 0) {
             inversInertia = (float) 1 / inertia;
         }
-        position.x = positionX;
-        position.y = positionY;
+        position.x = positionX + 25;
+        position.y = positionY + 25;
         velocity = new Vector2();
         gravity = new Vector2();
+        if (block) {
+            this.block = true;
+            int width = 50;
+            int height = 50;
+            this.vertices = new float[4 * 2];
+            this.vertices[0] = (float) -width / 2;
+            this.vertices[1] = (float) height / 2;
+            this.vertices[2] = (float) -width / 2 + width;
+            this.vertices[3] = (float) height / 2;
+            this.vertices[4] = (float) -width / 2 + width;
+            this.vertices[5] = (float) -height / 2;
+            this.vertices[6] = (float) -width / 2;
+            this.vertices[7] = (float) -height / 2;
+        } else {
+            createVertices();
+        }
+    }
+
+    public boolean isBlock() {
+        return block;
     }
 
     private int random(int start, int end) {
