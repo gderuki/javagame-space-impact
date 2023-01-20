@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Asteroid implements PolygonRenderAble {
 
+    private AsteroidType asteroidType = AsteroidType.ASTEROID;
     private boolean block;
     private Texture texture;
 
@@ -70,6 +71,30 @@ public class Asteroid implements PolygonRenderAble {
             createVertices();
         }
         createTexture();
+    }
+
+    public Asteroid(float positionX, float positionY, AsteroidType asteroidType) {
+        this.asteroidType = asteroidType;
+        if (asteroidType == AsteroidType.PLAYER) {
+            createVertices();
+            velocity = new Vector2();
+        } else {
+            int width = MathUtils.random(0, 10);
+            int height = MathUtils.random(0, 10);
+            this.vertices = new float[4 * 2];
+            this.vertices[0] = (float) -width / 2;
+            this.vertices[1] = (float) height / 2;
+            this.vertices[2] = (float) -width / 2 + width;
+            this.vertices[3] = (float) height / 2;
+            this.vertices[4] = (float) -width / 2 + width;
+            this.vertices[5] = (float) -height / 2;
+            this.vertices[6] = (float) -width / 2;
+            this.vertices[7] = (float) -height / 2;
+            position.set(positionX, positionY);
+            velocity = new Vector2(500 * MathUtils.cos(MathUtils.random() * MathUtils.PI2), 500 * MathUtils.sin(MathUtils.random() * MathUtils.PI2));
+            createTexture();
+            angleVelocity = MathUtils.random() * MathUtils.PI2;
+        }
     }
 
     public Asteroid(int positionX, int positionY, boolean block) {
@@ -623,6 +648,10 @@ public class Asteroid implements PolygonRenderAble {
 
     public void setMass(int i) {
         mass = 0;
+    }
+
+    public AsteroidType getAsteroidType() {
+        return asteroidType;
     }
 
     private static class ProjectedVertex {

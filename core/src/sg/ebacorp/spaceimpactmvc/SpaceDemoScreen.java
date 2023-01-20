@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+import sg.ebacorp.spaceimpactmvc.model.AsteroidType;
 import sg.ebacorp.spaceimpactmvc.model.PathFinding.AStarPathFinding;
 import sg.ebacorp.spaceimpactmvc.controller.WorldController;
 import sg.ebacorp.spaceimpactmvc.model.AABB;
@@ -84,15 +85,19 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
         for (int i = 0; i < asteroids.size() - 1; i++) {
 
             Asteroid bodyA = asteroids.get(i);
+            if (bodyA.getAsteroidType() != AsteroidType.DEBRIS) {
 //            if (bodyA.getRectangle().overlaps(screenRectangle)) {
                 AABB bodyA_aabb = bodyA.getAABB();
                 for (int j = i + 1; j < asteroids.size(); j++) {
                     Asteroid bodyB = asteroids.get(j);
-                    AABB bodyB_aabb = bodyB.getAABB();
-                    if (AABB.IntersectAABBs(bodyA_aabb, bodyB_aabb)) {
-                        this.asteroidPairs.add(new WorldController.AsteroidPair(bodyA, bodyB));
+                    if (bodyB.getAsteroidType() != AsteroidType.DEBRIS) {
+                        AABB bodyB_aabb = bodyB.getAABB();
+                        if (AABB.IntersectAABBs(bodyA_aabb, bodyB_aabb)) {
+                            this.asteroidPairs.add(new WorldController.AsteroidPair(bodyA, bodyB));
+                        }
                     }
                 }
+            }
 //            }
         }
 
@@ -114,7 +119,19 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
             Asteroid.Overlap intersect = o1.intersect(o2, 1, 1);
             if (!intersect.isGap()) {
                 o1.penetrationResolution(intersect, o2, 1, 1);
-                o1.collisionResolution(intersect, o2, 1, 1);
+                if (o1.getAsteroidType() == AsteroidType.PLAYER || o2.getAsteroidType() == AsteroidType.PLAYER) {
+                    if (o1.getAsteroidType() == AsteroidType.ASTEROID) {
+                        asteroidArrayList.remove(o1);
+                    }
+                    if (o2.getAsteroidType() == AsteroidType.ASTEROID) {
+                        asteroidArrayList.remove(o2);
+                    }
+                    for (int i = 0; i < 50; i++) {
+                        asteroidArrayList.add(new Asteroid(o1.getPosition().x, o1.getPosition().y, AsteroidType.DEBRIS));
+                    }
+                } else {
+                    o1.collisionResolution(intersect, o2, 1, 1);
+                }
             }
         }
 
@@ -194,7 +211,7 @@ public class SpaceDemoScreen implements Screen, InputProcessor {
             Vector2 npcPosition = spline.GetSplinePoint(position, true);
             Vector2 npcGradient = spline.getGradient(position, true);
             if (player == null) {
-                player = new Asteroid(0, 0, false);
+                player = new Asteroid(0, 0, AsteroidType.PLAYER);
                 player.getPosition().set(npcPosition);
                 //super body
                 player.setMass(0);
